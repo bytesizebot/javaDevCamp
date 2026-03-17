@@ -13,7 +13,7 @@ import za.co.entelect.java_devcamp.service.IOrderService;
 import java.util.List;
 
 @RestController
-@RequestMapping("order")
+@RequestMapping("orders")
 @Tag(name = "Order", description = "Order management API")
 public class OrderController {
     
@@ -24,7 +24,7 @@ public class OrderController {
     }
 
     @Operation(summary="Get All Orders")
-    @GetMapping("/getAll")
+    @GetMapping("/")
     public ResponseEntity<List<OrderDto>> getAllOrders(){
         List<OrderDto> OrderDto = iOrderService.getOrders();
         return ResponseEntity.ok(OrderDto);

@@ -2,6 +2,7 @@ package za.co.entelect.java_devcamp.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,9 +15,9 @@ import za.co.entelect.java_devcamp.service.IProductService;
 import java.util.List;
 
 @RestController
-@RequestMapping("product")
-@SecurityRequirement(name = "Bearer Authentication")
+@RequestMapping("products")
 @Tag(name = "Product", description = "Product management API")
+@SecurityRequirements()
 public class ProductController {
     private final IProductService iProductService;
 
@@ -25,14 +26,13 @@ public class ProductController {
     }
 
     @Operation(summary="Get All Products")
-    @GetMapping("/getAll")
+    @GetMapping("/")
     public ResponseEntity<List<ProductDto>> getAllProducts(){
         List<ProductDto> productDto = iProductService.getProducts();
         return ResponseEntity.ok(productDto);
     }
 
     @Operation(summary="Get Product By Id")
-
     @GetMapping("/{id}")
     public ResponseEntity<ProductDto> getProductById(@PathVariable Long id){
        ProductDto productDto = iProductService.getProductById(id);

@@ -15,7 +15,7 @@ public class QualifyingAccounts {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
-    private Long QualifyingAccountsId;
+    private Long qualifyingAccountsId;
 
     @Column private Long accountId;
 
@@ -23,5 +23,8 @@ public class QualifyingAccounts {
     @JoinColumn(name = "ProductId")
     private Product product;
 
+//    @ManyToOne
+//    @JoinColumn(name = "profileId")
+//    private Profile profile;
 
 }

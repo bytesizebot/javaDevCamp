@@ -1,13 +1,12 @@
 package za.co.entelect.java_devcamp.mapper;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Component;
 import za.co.entelect.java_devcamp.dto.OrderDto;
 import za.co.entelect.java_devcamp.dto.OrderItemDto;
 import za.co.entelect.java_devcamp.entity.Order;
 import za.co.entelect.java_devcamp.entity.OrderItem;
 import za.co.entelect.java_devcamp.entity.Product;
-import za.co.entelect.java_devcamp.exception.ResourceFoundException;
+import za.co.entelect.java_devcamp.exception.ResourceNotFoundException;
 import za.co.entelect.java_devcamp.repository.ProductRepository;
 
 @Component
@@ -29,7 +28,7 @@ public class OrderMapper {
 
     public OrderItem toOrderItemEntity(OrderItemDto orderItemDto){
         Product product = productRepository.findById(orderItemDto.productId())
-                .orElseThrow(() -> new ResourceFoundException(("Product not found with id: ") + orderItemDto.productId()));
+                .orElseThrow(() -> new ResourceNotFoundException(("Product not found with id: ") + orderItemDto.productId()));
 
         OrderItem orderItem = new OrderItem();
         orderItem.setProduct(product);
