@@ -1,0 +1,12 @@
+package za.co.entelect.java_devcamp.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import za.co.entelect.java_devcamp.entity.QualifyingCustomerTypes;
+
+@Repository
+public interface QualifyingCustomerTypesRepository extends JpaRepository<QualifyingCustomerTypes, Long> {
+
+    QualifyingCustomerTypes findByCustomerTypesIdAndProductProductId(Long customerTypeId, Long productId);
+}
+

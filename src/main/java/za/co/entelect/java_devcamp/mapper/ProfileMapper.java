@@ -13,7 +13,7 @@ public class ProfileMapper {
                 profile.getFirstName(),
                 profile.getLastName(),
                 profile.getIdNumber(),
-                profile.getPhoneNumber()
+                profile.getCustomerTypeId()
         );
     }
 
@@ -23,7 +23,7 @@ public class ProfileMapper {
         profile.setLastName(profileDto.lastName());
         profile.setIdNumber(profileDto.idNumber());
         profile.setEmailAddress(profileDto.username());
-        profile.setPhoneNumber(profileDto.phoneNumber());
+        profile.setCustomerTypeId(profileDto.customerTypeId());
         return profile;
     }
 }

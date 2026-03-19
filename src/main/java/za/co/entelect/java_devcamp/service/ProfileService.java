@@ -1,5 +1,8 @@
 package za.co.entelect.java_devcamp.service;
 
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import za.co.entelect.java_devcamp.dto.ProfileDto;
 import za.co.entelect.java_devcamp.entity.Profile;
@@ -10,14 +13,15 @@ import za.co.entelect.java_devcamp.repository.ProfileRepository;
 import za.co.entelect.java_devcamp.repository.UserRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@Slf4j
 public class ProfileService implements IProfileService {
 
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
     private final ProfileMapper profileMapper;
+    private static Logger logger = LoggerFactory.getLogger(UserService.class);
 
     public ProfileService(ProfileRepository profileRepository, UserRepository userRepository, ProfileMapper profileMapper) {
         this.profileRepository = profileRepository;
@@ -28,6 +32,7 @@ public class ProfileService implements IProfileService {
 
     @Override
     public void createUserProfile(ProfileDto profileDto) {
+        logger.info("Creating a new user profile");
         if (!userRepository.existsByUsername(profileDto.username())) {
             throw new ResourceNotFoundException("User does not exist. Please register first.");
         }

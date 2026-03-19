@@ -1,5 +1,8 @@
 package za.co.entelect.java_devcamp.service;
 
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,12 +15,15 @@ import za.co.entelect.java_devcamp.mapper.UserMapper;
 import za.co.entelect.java_devcamp.repository.UserRepository;
 import za.co.entelect.java_devcamp.request.LogInRequest;
 import za.co.entelect.java_devcamp.response.LogInResponse;
+
 @Service
+@Slf4j
 public class UserService implements IUserService{
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final JwtUtils jwtUtils;
+    private static Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -30,6 +36,8 @@ public class UserService implements IUserService{
 
     @Override
     public void createUser(UserDto userDto) {
+        logger.info("Registering a new user");
+
         if(userRepository.existsByUsername(userDto.username())){
             throw new RuntimeException("User already exists.");
         }
@@ -42,6 +50,7 @@ public class UserService implements IUserService{
 
     @Override
     public LogInResponse logIn(LogInRequest request) {
+        logger.info("Logging in...");
         User user = userRepository.findByUsername(request.username())
                 .orElseThrow(() -> new ResourceNotFoundException(("User not found with username: ") + request.username()));
 

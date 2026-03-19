@@ -23,8 +23,5 @@ public class QualifyingAccounts {
     @JoinColumn(name = "ProductId")
     private Product product;
 
-//    @ManyToOne
-//    @JoinColumn(name = "profileId")
-//    private Profile profile;
 
 }

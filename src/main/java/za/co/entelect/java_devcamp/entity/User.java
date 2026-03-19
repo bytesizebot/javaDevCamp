@@ -8,7 +8,7 @@ import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 @Entity
-@Table(name = "User", schema = "auth")
+@Table(name = "User", schema = "public")
 @Getter
 @Setter
 @AllArgsConstructor

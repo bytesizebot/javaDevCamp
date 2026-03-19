@@ -9,6 +9,6 @@ public record ProfileDto(
         String firstName,
         String lastName,
         String idNumber,
-        String phoneNumber
+        Long customerTypeId
 ) {
 }

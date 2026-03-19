@@ -10,8 +10,7 @@ public record ProfileRequest (
         String firstName,
         String lastName,
         String idNumber,
-        Long customerTypeId,
-        List<CustomerAccounts> accounts
+        Long customerTypeId
 ){
 
 }

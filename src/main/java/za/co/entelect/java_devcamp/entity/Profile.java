@@ -35,6 +35,6 @@ public class Profile {
     private String idNumber;
 
     @Column
-    private String phoneNumber;
+    private Long customerTypeId;
 
 }
