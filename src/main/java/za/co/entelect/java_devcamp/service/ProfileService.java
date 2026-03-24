@@ -57,9 +57,8 @@ public class ProfileService implements IProfileService {
     }
 
     @Override
-    public ProfileDto getProfileByUserName(String username) {
-        Profile profile = profileRepository.findByEmailAddress(username)
+    public Profile getProfileByUserName(String username) {
+        return profileRepository.findByEmailAddress(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Profile not found with username: " + username));
-        return profileMapper.toProfileDto(profile);
     }
 }

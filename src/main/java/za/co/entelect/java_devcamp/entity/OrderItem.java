@@ -26,4 +26,7 @@ public class OrderItem {
     @JoinColumn(name = "OrderId")
     private Order order;
 
+    public OrderItem(Product product) {
+        this.product = product;
+    }
 }

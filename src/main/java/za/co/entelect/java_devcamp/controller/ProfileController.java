@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import za.co.entelect.java_devcamp.dto.ProfileDto;
 import za.co.entelect.java_devcamp.entity.Profile;
 import za.co.entelect.java_devcamp.exception.ResourceNotFoundException;
+import za.co.entelect.java_devcamp.mapper.ProfileMapper;
 import za.co.entelect.java_devcamp.response.LogInResponse;
 import za.co.entelect.java_devcamp.service.IProfileService;
 
@@ -17,15 +18,16 @@ import za.co.entelect.java_devcamp.service.IProfileService;
 public class ProfileController {
 
     private final IProfileService iProfileService;
+    private final ProfileMapper profileMapper;
 
-    public ProfileController(IProfileService iProfileService) {
+    public ProfileController(IProfileService iProfileService, ProfileMapper profileMapper) {
         this.iProfileService = iProfileService;
+        this.profileMapper = profileMapper;
     }
 
     @PostMapping("/create")
     public ResponseEntity<ProfileDto> createUserProfile(@RequestBody ProfileDto profileDto) {
         iProfileService.createUserProfile(profileDto);
-
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(profileDto);
     }
@@ -33,12 +35,15 @@ public class ProfileController {
     @GetMapping("/{username}")
     public ResponseEntity<ProfileDto> getUserProfile(@PathVariable String username) {
         try {
-            ProfileDto profile = iProfileService.getProfileByUserName(username);
+            Profile profile = iProfileService.getProfileByUserName(username);
+            ProfileDto profileDto = profileMapper.toProfileDto(profile);
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(profile);
+                    .body(profileDto);
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .build();
         }
     }
+
+    //To do: Update customer profile implementation
 }

@@ -1,6 +1,7 @@
 package za.co.entelect.java_devcamp.service;
 
 import za.co.entelect.java_devcamp.dto.ProfileDto;
+import za.co.entelect.java_devcamp.entity.Profile;
 
 import java.util.List;
 
@@ -11,6 +12,6 @@ public interface IProfileService {
 
     List<ProfileDto> getAllProfiles();
 
-    ProfileDto getProfileByUserName(String username);
+    Profile getProfileByUserName(String username);
 
 }

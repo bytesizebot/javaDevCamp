@@ -1,4 +1,4 @@
-package za.co.entelect.java_devcamp.entity;
+package za.co.entelect.java_devcamp.customerdto;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -6,7 +6,7 @@ import lombok.*;
 @Getter
 @Setter
 @Embeddable
-public class CustomerAccounts {
+public class CustomerAccountsDto {
     @Column(name = "account_type_id")
     private Long accountTypeId;
 

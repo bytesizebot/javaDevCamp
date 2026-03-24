@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import za.co.entelect.java_devcamp.dto.ProductDto;
+import za.co.entelect.java_devcamp.mapper.ProductMapper;
 import za.co.entelect.java_devcamp.response.EligibilityResponse;
 import za.co.entelect.java_devcamp.service.IProductService;
 
@@ -18,29 +19,31 @@ import java.util.List;
 @SecurityRequirements()
 public class ProductController {
     private final IProductService iProductService;
+    private final ProductMapper productMapper;
 
-    public ProductController(IProductService iProductService) {
+    public ProductController(IProductService iProductService, ProductMapper productMapper) {
         this.iProductService = iProductService;
+        this.productMapper = productMapper;
     }
 
-    @Operation(summary="Get All Products")
+    @Operation(summary = "Get All Products")
     @GetMapping("/")
-    public ResponseEntity<List<ProductDto>> getAllProducts(){
+    public ResponseEntity<List<ProductDto>> getAllProducts() {
         List<ProductDto> productDto = iProductService.getProducts();
         return ResponseEntity.ok(productDto);
     }
 
-    @Operation(summary="Get Product By Id")
+    @Operation(summary = "Get Product By Id")
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDto> getProductById(@PathVariable Long id){
-       ProductDto productDto = iProductService.getProductById(id);
-       return ResponseEntity.ok(productDto);
+    public ResponseEntity<ProductDto> getProductById(@PathVariable Long id) {
+        ProductDto productDto = productMapper.toDto(iProductService.getProductById(id));
+        return ResponseEntity.ok(productDto);
     }
 
     @Operation(summary = "Check if a customer is eligible for a product")
-    @GetMapping("/check-eligibility")
+    @GetMapping("/eligibility")
     @SecurityRequirement(name = "bearerAuth")
-    public EligibilityResponse checkProductEligibility(@RequestParam String email, @RequestParam Long productId){
+    public EligibilityResponse checkProductEligibility(@RequestParam String email, @RequestParam Long productId) {
 
         boolean isEligible = iProductService.isEligibleForProduct(email, productId);
 

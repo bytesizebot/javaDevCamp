@@ -36,13 +36,18 @@ public class Order {
     private String contractUrl;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> orderItems = new ArrayList<>();
+    private List<OrderItem> orderItems;
 
     public Order(Long customerId, LocalDateTime createdAt, Status orderStatus, String contractUrl, List<OrderItem> orderItems) {
         this.customerId = customerId;
         this.createdAt = createdAt;
         this.orderStatus = orderStatus;
         this.contractUrl = contractUrl;
-        this.orderItems = orderItems;
     }
+
+    public void addProducts(OrderItem item){
+        orderItems.add(item);
+        item.setOrder(this);
+    }
+
 }

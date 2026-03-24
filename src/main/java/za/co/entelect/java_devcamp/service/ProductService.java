@@ -22,17 +22,19 @@ public class ProductService implements IProductService {
     private final ProductRepository productRepository;
     private final QualifyingAccountsRepository qualifyingAccountsRepository;
     private final QualifyingCustomerTypesRepository qualifyingCustomerTypesRepository;
-    private final ProfileRepository profileRepository;
     private final ProductMapper productMapper;
     private final CISWebService cisWebService;
+    private final ProfileRepository profileRepository;
+    private final EligibilityRepository eligibilityRepository;
 
-    public ProductService(ProductRepository productRepository, QualifyingAccountsRepository qualifyingAccountsRepository, QualifyingCustomerTypesRepository qualifyingCustomerTypesRepository, ProfileRepository profileRepository, ProductMapper productMapper, CISWebService cisWebService) {
+    public ProductService(ProductRepository productRepository, QualifyingAccountsRepository qualifyingAccountsRepository, QualifyingCustomerTypesRepository qualifyingCustomerTypesRepository, ProductMapper productMapper, CISWebService cisWebService, ProfileRepository profileRepository, EligibilityRepository eligibilityRepository) {
         this.productRepository = productRepository;
         this.qualifyingAccountsRepository = qualifyingAccountsRepository;
         this.qualifyingCustomerTypesRepository = qualifyingCustomerTypesRepository;
-        this.profileRepository = profileRepository;
         this.productMapper = productMapper;
         this.cisWebService = cisWebService;
+        this.profileRepository = profileRepository;
+        this.eligibilityRepository = eligibilityRepository;
     }
 
     @Override
@@ -42,28 +44,28 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public ProductDto getProductById(Long id) {
-        Product product = productRepository.findById(id)
+    public Product getProductById(Long id) {
+        return productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(("Product not found with id: ") + id));
-        return productMapper.toDto(product);
+
     }
 
     @Override
     public boolean isEligibleForProduct(String customerEmail, Long productId) {
-
-        //get customer by Email from CIS
         CustomerDto customer = cisWebService.getCustomerByEmail(customerEmail);
 
-        //using customer, get the customerTypeId && customerAccounts[]
-        //Long customerTypeId = Long.valueOf(customer.getCustomerType().getId());
-        //temporary
+        if(eligibilityRepository.existsByCustomerIdAndProductId(customer.getId(), productId)){
+            return eligibilityRepository.findByCustomerIdAndProductId(customer.getId(), productId).getResult();
+        }
+        //check token n user at the same time
+        String customerType = customer.getCustomerType().getName();
+
         Profile profile = profileRepository.findByEmailAddress(customerEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("Profile not found with username: " + customerEmail));
+               .orElseThrow(() -> new ResourceNotFoundException("Profile not found with username: " + customerEmail));
         Long customerTypeId = profile.getCustomerTypeId();
 
         List<AccountsDto> customerAccounts = customer.getCustomerAccounts();
 
-        //get customer accounts id
         List<Integer> accountIds = Optional.ofNullable(customerAccounts)
                 .orElse(Collections.emptyList())
                 .stream()
@@ -77,8 +79,6 @@ public class ProductService implements IProductService {
                 .toList();
 
         boolean hasAQualifyingAccount = false;
-
-        //query qualifying accounts table for product id; return account ids;
         for (Integer accountId : accountIds) {
             if (accountId == null) continue;
 
@@ -89,13 +89,12 @@ public class ProductService implements IProductService {
                 hasAQualifyingAccount = true;
             }
         }
-        //query qualifying customer types table with product id; return customer type ids;
         QualifyingCustomerTypes qualifyingCustomerTypes = qualifyingCustomerTypesRepository.findByCustomerTypesIdAndProductProductId(customerTypeId, productId);
+        boolean isEligible = ((qualifyingCustomerTypes != null) && (hasAQualifyingAccount));
 
-        //check if customer type id in qualifyingCustomerTypes &&
-        return ((qualifyingCustomerTypes != null) && (hasAQualifyingAccount));
+        Eligibility eligible = new Eligibility(productId,profile.getProfileId(), isEligible);
 
-        //check if customer account id in qualifyingAccounts
-        //return true/ false;
+        eligibilityRepository.save(eligible);
+        return isEligible;
     }
 }
