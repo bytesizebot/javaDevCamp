@@ -12,7 +12,6 @@ public class WebClientConfig {
         return WebClient.builder();
     }
 
-
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();

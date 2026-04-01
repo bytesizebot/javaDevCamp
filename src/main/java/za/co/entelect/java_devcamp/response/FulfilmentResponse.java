@@ -10,6 +10,6 @@ import lombok.Setter;
 public class FulfilmentResponse {
     private Long orderId;
     private String correlationId;
-    private String customerId;
+    private Long customerId;
     private boolean successful;
 }

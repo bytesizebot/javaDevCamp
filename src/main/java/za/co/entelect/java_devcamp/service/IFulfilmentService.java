@@ -9,7 +9,7 @@ import za.co.entelect.java_devcamp.webclientdto.LivingStatusCheckDto;
 import za.co.entelect.java_devcamp.webclientdto.MaritalStatusDto;
 
 public interface IFulfilmentService {
-    void determineFulfillmentCheck(Order order, String customerId);
+    void determineFulfillmentCheck(Order order, Long customerId);
     void doTypeAChecks(FulfillmentRequest request);
     void doTypeBChecks(FulfillmentRequest request);
     void doTypeCChecks(FulfillmentRequest request);

@@ -3,6 +3,8 @@ package za.co.entelect.java_devcamp.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @AllArgsConstructor
+@Slf4j
 @Service
 public class FulfilmentService implements IFulfilmentService {
 
@@ -27,7 +30,7 @@ public class FulfilmentService implements IFulfilmentService {
     private final ObjectMapper objectMapper;
 
     @Override
-    public void determineFulfillmentCheck(Order order, String customerIdNumber) {
+    public void determineFulfillmentCheck(Order order, Long customerIdNumber) {
         List<OrderItem> orderItems = order.getOrderItems();
         String correlationId = UUID.randomUUID().toString();
 
@@ -55,8 +58,8 @@ public class FulfilmentService implements IFulfilmentService {
     public void doTypeAChecks(FulfillmentRequest request) {
         try {
             String jsonMessage = objectMapper.writeValueAsString(request);
-
             rabbitTemplate.convertAndSend(RabbitConfig.KYC_QUEUE, jsonMessage);
+
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -65,15 +68,26 @@ public class FulfilmentService implements IFulfilmentService {
     @Override
     public void doTypeBChecks(FulfillmentRequest request) {
         doTypeAChecks(request);
-        rabbitTemplate.convertAndSend(RabbitConfig.DHA_QUEUE, request);
+//        try {
+//            String jsonMessage = objectMapper.writeValueAsString(request);
+//            doTypeAChecks(request);
+//            rabbitTemplate.convertAndSend(RabbitConfig.DHA_QUEUE, jsonMessage);
+//        } catch (JsonProcessingException e) {
+//            throw new RuntimeException(e);
+//        }
         //Fraud, Living status & DuplicateID
     }
 
     @Override
     public void doTypeCChecks(FulfillmentRequest request) {
-        doTypeBChecks(request);
-        rabbitTemplate.convertAndSend(RabbitConfig.CC_QUEUE, request);
-        //Marital status & Credit check
+        try {
+            String jsonMessage = objectMapper.writeValueAsString(request);
+            doTypeBChecks(request);
+            rabbitTemplate.convertAndSend(RabbitConfig.CC_QUEUE, request);
+            //Marital status & Credit check
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -83,6 +97,7 @@ public class FulfilmentService implements IFulfilmentService {
         if(response.isPrimaryIndicator() && compliant.contains(response.getTaxCompliance())){
             fulfilmentResponse.setSuccessful(true);
             //notification placeholder
+            log.info("Continue process");
         }
         //notification placeholder
         eventPublisher.publishEvent(new ActionCompletedFulfilmentChecks(fulfilmentResponse));

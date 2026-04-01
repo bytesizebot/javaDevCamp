@@ -6,5 +6,5 @@ import za.co.entelect.java_devcamp.webclientdto.KYCCheckDto;
 public interface IWebService {
     ProfileDto createCISCustomer(ProfileDto profileDto);
 
-    KYCCheckDto getCustomerKYC(String customerId);
+    KYCCheckDto getCustomerKYC(Long customerId);
 }

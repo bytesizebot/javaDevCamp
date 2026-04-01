@@ -28,19 +28,9 @@ import java.util.Map;
 public class AuthController {
 
     private final IUserService iuserService;
-    private final RestTemplate restTemplate;
-    @Value("${auth.service.url}")
-    private String authServiceUrl;
-
-    @Value("${auth.service.client.username}")
-    private String authServiceUsername;
-
-    @Value("${auth.service.client.password}")
-    private String authServicePassword;
 
     public AuthController(IUserService iuserService, RestTemplate restTemplate) {
         this.iuserService = iuserService;
-        this.restTemplate = restTemplate;
     }
 
     @PostMapping("/register")
@@ -59,19 +49,6 @@ public class AuthController {
     public ResponseEntity<LogInResponse> logIn(@RequestBody LogInRequest userDto) {
         try {
             LogInResponse response = iuserService.logIn(userDto);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setBasicAuth(authServiceUsername, authServicePassword);
-
-            HttpEntity<Map<String, String>> entity = new HttpEntity<>(
-                    Map.of("username", userDto.username()), headers);
-
-            ResponseEntity<String> authResponse =
-                    restTemplate.postForEntity(authServiceUrl, entity, String.class);
-
-            String token = authResponse.getBody();
-
-            response.setToken(token);
 
             return ResponseEntity.ok(response);
         } catch (ResourceNotFoundException e) {

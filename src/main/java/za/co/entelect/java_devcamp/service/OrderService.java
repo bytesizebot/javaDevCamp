@@ -75,8 +75,8 @@ public class OrderService implements IOrderService {
             productOrder.addProducts(item);
 
            // orderRepository.save(productOrder);
-            
-            iFulfilmentService.determineFulfillmentCheck(productOrder, customer.getIdNumber());
+
+            iFulfilmentService.determineFulfillmentCheck(productOrder, customer.getId());
             messageProducer.sendMessage("A new product needs fulfilment for customer: " + customerEmail);
             return productOrder;
         }
@@ -84,8 +84,10 @@ public class OrderService implements IOrderService {
 
     @Override
     public Order updateOrderStatus(Long orderId, Status newStatus) {
-        Order order = orderMapper.toOrderEntity(getOrderById(orderId));
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
         order.setOrderStatus(newStatus);
+
         return orderRepository.save(order);
     }
 

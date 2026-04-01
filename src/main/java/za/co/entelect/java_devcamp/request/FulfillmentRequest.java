@@ -12,7 +12,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FulfillmentRequest implements Serializable {
-    private String customerIdNumber;
+    private Long customerId;
     private Long orderId;
     private String correlationId;
 }

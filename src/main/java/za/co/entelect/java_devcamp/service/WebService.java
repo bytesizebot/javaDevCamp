@@ -29,7 +29,7 @@ public class WebService implements IWebService {
     }
 
     @Override
-    public KYCCheckDto getCustomerKYC(String customerId) {
+    public KYCCheckDto getCustomerKYC(Long customerId) {
 
         return kycWebService.getCustomerKYC(customerId);
     }

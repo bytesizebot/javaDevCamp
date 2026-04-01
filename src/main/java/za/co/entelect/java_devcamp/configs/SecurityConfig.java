@@ -57,20 +57,4 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-
-    public static String maskEmail(String email) {
-        if (email == null || !email.contains("@")) {
-            return email;
-        }
-        String[] parts = email.split("@");
-        String local = parts[0];
-        String domain = parts[1];
-
-        // Keep first character, mask rest of local part
-        String maskedLocal = local.length() > 1
-                ? local.charAt(0) + "***"
-                : "***";
-
-        return maskedLocal + "@" + domain;
-    }
 }
