@@ -17,7 +17,6 @@ import za.co.entelect.java_devcamp.webclientdto.KYCCheckDto;
 public class KYCWebService {
 
     private final WebClient kycClient;
-    private final HttpServletRequest request;
     private final TokenStore tokenStore;
 
     public KYCWebService(WebClient.Builder kycClientBuilder, HttpServletRequest request, TokenStore tokenStore){
@@ -25,15 +24,12 @@ public class KYCWebService {
                 .baseUrl("http://localhost:8081")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
-        this.request = request;
         this.tokenStore = tokenStore;
     }
 
     public KYCCheckDto getCustomerKYC(Long customerId){
         log.info("Getting customer KYC information");
 
-
-       // String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         try{
             return kycClient.get()
                     .uri(uriBuilder -> uriBuilder
@@ -43,7 +39,7 @@ public class KYCWebService {
                     .retrieve()
                     .onStatus(
                             status -> status.is4xxClientError(),
-                            response -> response.createException() // always throw
+                            response -> response.createException()
                     )
                     .onStatus(
                             status -> status.is5xxServerError(),
@@ -51,14 +47,14 @@ public class KYCWebService {
                                     response.bodyToMono(String.class)
                                             .flatMap(body -> {
                                                 log.error("5xx error: {}", body);
-                                                return response.createException(); // keep consistent
+                                                return response.createException();
                                             })
                     )
                     .bodyToMono(KYCCheckDto.class)
                     .onErrorResume(WebClientResponseException.class, ex -> {
 
                         if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
-                            return Mono.empty(); // 👈 correct place for 404 handling
+                            return Mono.empty();
                         }
 
                         if (ex.getStatusCode().is5xxServerError()) {
@@ -69,7 +65,6 @@ public class KYCWebService {
                         return Mono.error(ex);
                     })
                     .block();
-
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -8,6 +8,6 @@ import java.util.Date;
 @Getter
 @Setter
 public class LivingStatusCheckDto {
-    private String livingStatus;
+    private LivingStatus livingStatus;
     private Date deceasedDate;
 }

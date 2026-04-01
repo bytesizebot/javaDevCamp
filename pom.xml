@@ -194,7 +194,6 @@
 
 	<build>
 		<plugins>
-
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -216,6 +215,33 @@
 						-Xshare:off
 					</argLine>
 				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.openapitools</groupId>
+				<artifactId>openapi-generator-maven-plugin</artifactId>
+				<version>7.16.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>
+								${project.basedir}/src/main/resources/producthouse.yml
+							</inputSpec>
+							<generatorName>spring</generatorName>
+							<apiPackage>com.baeldung.openapi.api</apiPackage>
+							<modelPackage>com.baeldung.openapi.model</modelPackage>
+							<supportingFilesToGenerate>
+								ApiUtil.java
+							</supportingFilesToGenerate>
+							<configOptions>
+								<delegatePattern>true</delegatePattern>
+							</configOptions>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 
 		</plugins>
