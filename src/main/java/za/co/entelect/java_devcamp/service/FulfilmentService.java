@@ -12,6 +12,7 @@ import za.co.entelect.java_devcamp.entity.Order;
 import za.co.entelect.java_devcamp.entity.OrderItem;
 import za.co.entelect.java_devcamp.request.FulfillmentRequest;
 import za.co.entelect.java_devcamp.response.FulfilmentResponse;
+import za.co.entelect.java_devcamp.serviceinterface.IFulfilmentService;
 import za.co.entelect.java_devcamp.util.ActionCompletedFulfilmentChecks;
 import za.co.entelect.java_devcamp.webclientdto.*;
 

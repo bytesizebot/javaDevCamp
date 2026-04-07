@@ -1,4 +1,4 @@
-package za.co.entelect.java_devcamp.service;
+package za.co.entelect.java_devcamp.serviceinterface;
 
 import za.co.entelect.java_devcamp.entity.Order;
 import za.co.entelect.java_devcamp.request.FulfillmentRequest;

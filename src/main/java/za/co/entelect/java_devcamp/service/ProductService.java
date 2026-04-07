@@ -13,6 +13,7 @@ import za.co.entelect.java_devcamp.repository.EligibilityRepository;
 import za.co.entelect.java_devcamp.repository.ProductRepository;
 import za.co.entelect.java_devcamp.repository.QualifyingAccountsRepository;
 import za.co.entelect.java_devcamp.repository.QualifyingCustomerTypesRepository;
+import za.co.entelect.java_devcamp.serviceinterface.IProductService;
 import za.co.entelect.java_devcamp.webclient.CISWebService;
 import za.co.entelect.java_devcamp.webclientdto.AccountTypeDto;
 import za.co.entelect.java_devcamp.webclientdto.CustomerDto;

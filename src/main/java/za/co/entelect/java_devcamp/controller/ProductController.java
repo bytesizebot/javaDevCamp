@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import za.co.entelect.java_devcamp.dto.ProductDto;
 import za.co.entelect.java_devcamp.mapper.ProductMapper;
 import za.co.entelect.java_devcamp.response.EligibilityResponse;
-import za.co.entelect.java_devcamp.service.IProductService;
+import za.co.entelect.java_devcamp.serviceinterface.IProductService;
 
 import java.util.List;
 

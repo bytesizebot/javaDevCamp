@@ -10,7 +10,7 @@ import za.co.entelect.java_devcamp.entity.Order;
 import za.co.entelect.java_devcamp.mapper.OrderMapper;
 import za.co.entelect.java_devcamp.request.OrderRequest;
 import za.co.entelect.java_devcamp.request.UpdateOrderRequest;
-import za.co.entelect.java_devcamp.service.IOrderService;
+import za.co.entelect.java_devcamp.serviceinterface.IOrderService;
 
 import java.util.List;
 

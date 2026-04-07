@@ -15,7 +15,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import za.co.entelect.java_devcamp.configs.RabbitConfig;
 import za.co.entelect.java_devcamp.request.FulfillmentRequest;
 import za.co.entelect.java_devcamp.response.FulfilmentResponse;
-import za.co.entelect.java_devcamp.service.IFulfilmentService;
+import za.co.entelect.java_devcamp.serviceinterface.IFulfilmentService;
 import za.co.entelect.java_devcamp.util.MaskingUtils;
 import za.co.entelect.java_devcamp.webclient.DHAWebService;
 import za.co.entelect.java_devcamp.webclient.KYCWebService;

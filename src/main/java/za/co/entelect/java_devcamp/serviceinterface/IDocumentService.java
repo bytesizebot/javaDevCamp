@@ -1,4 +1,4 @@
-package za.co.entelect.java_devcamp.service;
+package za.co.entelect.java_devcamp.serviceinterface;
 
 import za.co.entelect.java_devcamp.dto.ProductDto;
 import za.co.entelect.java_devcamp.webclientdto.CustomerDto;

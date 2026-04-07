@@ -8,7 +8,7 @@ import za.co.entelect.java_devcamp.dto.ProfileDto;
 import za.co.entelect.java_devcamp.entity.Profile;
 import za.co.entelect.java_devcamp.exception.ResourceNotFoundException;
 import za.co.entelect.java_devcamp.mapper.ProfileMapper;
-import za.co.entelect.java_devcamp.service.IProfileService;
+import za.co.entelect.java_devcamp.serviceinterface.IProfileService;
 
 @RestController
 @RequestMapping("profiles")

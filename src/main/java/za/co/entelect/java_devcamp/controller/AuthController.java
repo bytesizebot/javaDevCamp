@@ -14,7 +14,7 @@ import za.co.entelect.java_devcamp.exception.IncorrectPasswordException;
 import za.co.entelect.java_devcamp.exception.ResourceNotFoundException;
 import za.co.entelect.java_devcamp.request.LogInRequest;
 import za.co.entelect.java_devcamp.response.LogInResponse;
-import za.co.entelect.java_devcamp.service.IUserService;
+import za.co.entelect.java_devcamp.serviceinterface.IUserService;
 
 @RestController
 @RequestMapping("auth")

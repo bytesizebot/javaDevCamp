@@ -12,6 +12,7 @@ import za.co.entelect.java_devcamp.exception.ResourceNotFoundException;
 import za.co.entelect.java_devcamp.mapper.ProfileMapper;
 import za.co.entelect.java_devcamp.repository.ProfileRepository;
 import za.co.entelect.java_devcamp.repository.UserRepository;
+import za.co.entelect.java_devcamp.serviceinterface.IProfileService;
 
 import java.util.List;
 

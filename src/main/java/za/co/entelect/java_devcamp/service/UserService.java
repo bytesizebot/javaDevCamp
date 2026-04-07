@@ -19,6 +19,7 @@ import za.co.entelect.java_devcamp.mapper.UserMapper;
 import za.co.entelect.java_devcamp.repository.UserRepository;
 import za.co.entelect.java_devcamp.request.LogInRequest;
 import za.co.entelect.java_devcamp.response.LogInResponse;
+import za.co.entelect.java_devcamp.serviceinterface.IUserService;
 
 import java.util.Map;
 

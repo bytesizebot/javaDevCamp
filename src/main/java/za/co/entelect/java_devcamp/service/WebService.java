@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import za.co.entelect.java_devcamp.dto.ProfileDto;
 import za.co.entelect.java_devcamp.exception.DuplicateResourceException;
+import za.co.entelect.java_devcamp.serviceinterface.IWebService;
 import za.co.entelect.java_devcamp.webclient.CISWebService;
 import za.co.entelect.java_devcamp.webclient.DHAWebService;
 import za.co.entelect.java_devcamp.webclient.KYCWebService;

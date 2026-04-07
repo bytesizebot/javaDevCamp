@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import za.co.entelect.java_devcamp.dto.ProfileDto;
-import za.co.entelect.java_devcamp.service.IWebService;
+import za.co.entelect.java_devcamp.serviceinterface.IWebService;
 import za.co.entelect.java_devcamp.soap.CreditClient;
 import za.co.entelect.java_devcamp.webclientdto.DuplicateIdCheckDto;
 import za.co.entelect.java_devcamp.webclientdto.KYCCheckDto;
