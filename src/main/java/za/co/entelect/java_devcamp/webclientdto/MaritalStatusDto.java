@@ -5,14 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class MaritalStatusDto {
-    private MaritalStatus maritalStatus;
-    private Date effectiveFrom;
-    private Date effectiveTo;
+    private MaritalStatus status;
+    private LocalDate effectiveFrom;
+    private LocalDate effectiveTo;
 }

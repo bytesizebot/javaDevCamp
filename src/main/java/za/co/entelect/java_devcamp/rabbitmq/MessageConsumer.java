@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.openapitools.model.DuplicateIDDocumentCheck;
+import org.openapitools.model.LivingStatus;
+import org.openapitools.model.MaritalStatusResponse;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.support.AmqpHeaders;
@@ -125,7 +128,7 @@ public class MessageConsumer {
             FulfillmentRequest request = objectMapper.readValue(message, FulfillmentRequest.class);
             log.info("Processing DHA Living status check for customer orderId: {}", MaskingUtils.maskId(request.getCorrelationId()));
 
-            LivingStatusCheckDto livingStatusResponse = null;
+            LivingStatus livingStatusResponse = null;
             int maxRetries = 3;
             int attempt = 0;
 
@@ -180,7 +183,7 @@ public class MessageConsumer {
             FulfillmentRequest request = objectMapper.readValue(message, FulfillmentRequest.class);
             log.info("Processing DHA Duplicate ID check for customer orderId: {}", MaskingUtils.maskId(request.getCorrelationId()));
 
-            DuplicateIdCheckDto duplicateIDResponse = null;
+            DuplicateIDDocumentCheck duplicateIDResponse = null;
             int maxRetries = 3;
             int attempt = 0;
 
@@ -236,7 +239,7 @@ public class MessageConsumer {
             if (Objects.equals(request.getFulfillmentType(), "C")) {
                 log.info("Processing DHA Marital Status check for customer orderId: {}", MaskingUtils.maskId(request.getCorrelationId()));
 
-                MaritalStatusCheckDto maritalStatusResponse = null;
+                MaritalStatusResponse maritalStatusResponse = null;
                 int maxRetries = 3;
                 int attempt = 0;
 

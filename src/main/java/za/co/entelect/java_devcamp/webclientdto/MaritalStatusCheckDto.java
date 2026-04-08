@@ -1,8 +1,11 @@
 package za.co.entelect.java_devcamp.webclientdto;
 
-import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class MaritalStatusCheckDto {
-    private List<MaritalStatusDto> currentStatus;
-    private List<MaritalStatusDto> previousStatus;
+    private MaritalStatusDto currentStatus;
+    private MaritalStatusDto previousStatus;
 }

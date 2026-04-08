@@ -2,6 +2,9 @@ package za.co.entelect.java_devcamp.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.openapitools.model.DuplicateIDDocumentCheck;
+import org.openapitools.model.LivingStatus;
+import org.openapitools.model.MaritalStatusResponse;
 import org.springframework.stereotype.Service;
 import za.co.entelect.java_devcamp.dto.ProfileDto;
 import za.co.entelect.java_devcamp.exception.DuplicateResourceException;
@@ -41,17 +44,18 @@ public class WebService implements IWebService {
     }
 
     @Override
-    public MaritalStatusCheckDto getCustomerMaritalStatus(String customerIdNumber) {
+    public MaritalStatusResponse getCustomerMaritalStatus(String customerIdNumber) {
         return dhaWebService.getMaritalStatus(customerIdNumber);
     }
 
     @Override
-    public LivingStatusCheckDto getCustomerLivingStatus(String customerIdNumber) {
+    public LivingStatus getCustomerLivingStatus(String customerIdNumber) {
         return dhaWebService.getLivingStatus(customerIdNumber);
     }
 
     @Override
-    public DuplicateIdCheckDto getCustomerDuplicateIDStatus(String customerIdNumber) {
+    public DuplicateIDDocumentCheck getCustomerDuplicateIDStatus(String customerIdNumber) {
         return dhaWebService.getDuplicateId(customerIdNumber);
     }
+
 }

@@ -2,9 +2,14 @@ package za.co.entelect.java_devcamp.controller;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.openapitools.api.DhaApi;
+
+import org.openapitools.model.DuplicateIDDocumentCheck;
+import org.openapitools.model.LivingStatus;
+import org.openapitools.model.MaritalStatusResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import za.co.entelect.java_devcamp.dto.ProfileDto;
 import za.co.entelect.java_devcamp.serviceinterface.IWebService;
@@ -14,14 +19,19 @@ import za.co.entelect.java_devcamp.webclientdto.KYCCheckDto;
 import za.co.entelect.java_devcamp.webclientdto.LivingStatusCheckDto;
 import za.co.entelect.java_devcamp.webclientdto.MaritalStatusCheckDto;
 import za.co.entelect.java_devcamp.wsdl.CreditCheckResponse;
+import org.openapitools.api.DhaApi;
 
 @RestController
 @RequestMapping("web-client")
 @Tag(name = "Web Client", description = "endpoint to communicate with CIS")
-public class WebClientController implements DhaApi {
+public class WebClientController implements DhaApi  {
 
     private final IWebService IWebService;
     private final CreditClient creditClient;
+
+    @Value("${remote.api.url}")
+    private String baseUrl;
+
 
     public WebClientController(IWebService IWebService, CreditClient creditClient) {
         this.IWebService = IWebService;
@@ -42,25 +52,25 @@ public class WebClientController implements DhaApi {
                 .body(kycCheckDto);
     }
 
-    @GetMapping("dha/marital/{customerIdNumber}")
-    public ResponseEntity<MaritalStatusCheckDto> getDHAMaritalStatus(@PathVariable String customerIdNumber){
-        MaritalStatusCheckDto maritalStatusCheck = IWebService.getCustomerMaritalStatus(customerIdNumber);
+    @Override
+    public ResponseEntity<MaritalStatusResponse> getMaritalStatusById(String idNumber){
+        MaritalStatusResponse maritalStatus = IWebService.getCustomerMaritalStatus(idNumber);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(maritalStatusCheck);
+                .body(maritalStatus);
     }
 
-    @GetMapping("dha/living/{customerIdNumber}")
-    public ResponseEntity<LivingStatusCheckDto> getDHALivingStatus(@PathVariable String customerIdNumber){
-        LivingStatusCheckDto livingStatusCheckDto = IWebService.getCustomerLivingStatus(customerIdNumber);
+
+    @Override
+    public ResponseEntity<LivingStatus> getLivingStatusById(String idNumber){
+        LivingStatus livingStatus = IWebService.getCustomerLivingStatus(idNumber);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(livingStatusCheckDto);
+                .body(livingStatus);
     }
 
-    @GetMapping("dha/duplicateId/{customerIdNumber}")
-    public ResponseEntity<DuplicateIdCheckDto> getDHADuplicateIDStatus(@PathVariable String customerIdNumber){
-        DuplicateIdCheckDto duplicateIdCheckDto = IWebService.getCustomerDuplicateIDStatus(customerIdNumber);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(duplicateIdCheckDto);
+    @Override
+    public ResponseEntity<DuplicateIDDocumentCheck> getDuplicateIdDocumentStatusById(String idNumber){
+        DuplicateIDDocumentCheck duplicateIDDocumentCheck = IWebService.getCustomerDuplicateIDStatus(idNumber);
+        return ResponseEntity.ok(duplicateIDDocumentCheck);
     }
 
     @GetMapping("creditCheck/{customerId}")

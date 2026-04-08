@@ -2,6 +2,9 @@ package za.co.entelect.java_devcamp.webclient;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.openapitools.model.DuplicateIDDocumentCheck;
+import org.openapitools.model.LivingStatus;
+import org.openapitools.model.MaritalStatusResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,7 +32,7 @@ public class DHAWebService {
         this.tokenStore = tokenStore;
     }
 
-    public DuplicateIdCheckDto getDuplicateId(String customerId) {
+    public DuplicateIDDocumentCheck getDuplicateId(String customerId) {
         log.info("Getting customer duplicate ID information");
         try {
             return dhaClient.get()
@@ -51,7 +54,7 @@ public class DHAWebService {
                                                 return response.createException();
                                             })
                     )
-                    .bodyToMono(DuplicateIdCheckDto.class)
+                    .bodyToMono(DuplicateIDDocumentCheck.class)
                     .onErrorResume(WebClientResponseException.class, ex -> {
 
                         if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
@@ -72,7 +75,7 @@ public class DHAWebService {
         }
     }
 
-    public LivingStatusCheckDto getLivingStatus(String customerId) {
+    public LivingStatus getLivingStatus(String customerId) {
         log.info("Getting customer living status information");
         try {
             return dhaClient.get()
@@ -94,7 +97,7 @@ public class DHAWebService {
                                                 return response.createException();
                                             })
                     )
-                    .bodyToMono(LivingStatusCheckDto.class)
+                    .bodyToMono(LivingStatus.class)
                     .onErrorResume(WebClientResponseException.class, ex -> {
 
                         if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
@@ -115,12 +118,12 @@ public class DHAWebService {
         }
     }
 
-    public MaritalStatusCheckDto getMaritalStatus(String customerId) {
-        log.info("Getting customer living status information");
+    public MaritalStatusResponse getMaritalStatus(String customerId) {
+        log.info("Getting customer marital status information");
         try {
             return dhaClient.get()
                     .uri(uriBuilder -> uriBuilder
-                            .path("/status/living/{idNumber}")
+                            .path("/status/marital/{idNumber}")
                             .build(customerId))
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenStore.getToken())
                     .retrieve()
@@ -137,9 +140,8 @@ public class DHAWebService {
                                                 return response.createException();
                                             })
                     )
-                    .bodyToMono(MaritalStatusCheckDto.class)
+                    .bodyToMono(MaritalStatusResponse.class)
                     .onErrorResume(WebClientResponseException.class, ex -> {
-
                         if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
                             return Mono.empty();
                         }

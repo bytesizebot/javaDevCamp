@@ -1,5 +1,8 @@
 package za.co.entelect.java_devcamp.serviceinterface;
 
+import org.openapitools.model.DuplicateIDDocumentCheck;
+import org.openapitools.model.LivingStatus;
+import org.openapitools.model.MaritalStatusResponse;
 import za.co.entelect.java_devcamp.entity.Order;
 import za.co.entelect.java_devcamp.request.FulfillmentRequest;
 import za.co.entelect.java_devcamp.response.FulfilmentResponse;
@@ -20,9 +23,9 @@ public interface IFulfilmentService {
     void processTypeBChecks();
     void processTypeACheck(KYCCheckDto response, FulfilmentResponse fulfilmentResponse);
     void processFraudCheckResponse();
-    void processLivingStatusCheck(LivingStatusCheckDto response, FulfilmentResponse fulfilmentResponse);
-    void processDuplicateIdCheck(DuplicateIdCheckDto response, FulfilmentResponse fulfilmentResponse);
-    void processMaritalStatusCheck(MaritalStatusCheckDto response, FulfilmentResponse fulfilmentResponse);
+    void processLivingStatusCheck(LivingStatus response, FulfilmentResponse fulfilmentResponse);
+    void processDuplicateIdCheck(DuplicateIDDocumentCheck response, FulfilmentResponse fulfilmentResponse);
+    void processMaritalStatusCheck(MaritalStatusResponse response, FulfilmentResponse fulfilmentResponse);
     void processCreditCheck();
 
 }

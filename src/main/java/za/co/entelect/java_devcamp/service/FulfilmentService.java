@@ -4,6 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.openapitools.model.DuplicateIDDocumentCheck;
+import org.openapitools.model.LivingStatus;
+import org.openapitools.model.MaritalStatusResponse;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -120,18 +123,17 @@ public class FulfilmentService implements IFulfilmentService {
     }
 
     @Override
-    public void processLivingStatusCheck(LivingStatusCheckDto response, FulfilmentResponse fulfilmentResponse) {
+    public void processLivingStatusCheck(LivingStatus response, FulfilmentResponse fulfilmentResponse) {
 
     }
 
     @Override
-    public void processDuplicateIdCheck(DuplicateIdCheckDto response, FulfilmentResponse fulfilmentResponse) {
+    public void processDuplicateIdCheck(DuplicateIDDocumentCheck response, FulfilmentResponse fulfilmentResponse) {
 
     }
 
-
     @Override
-    public void processMaritalStatusCheck(MaritalStatusCheckDto response, FulfilmentResponse fulfilmentResponse) {
+    public void processMaritalStatusCheck(MaritalStatusResponse response, FulfilmentResponse fulfilmentResponse) {
 
     }
 

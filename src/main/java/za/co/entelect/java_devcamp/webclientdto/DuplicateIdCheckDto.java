@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -14,5 +14,5 @@ import java.util.Date;
 public class DuplicateIdCheckDto {
 
     private boolean hasDuplicateId;
-    private Date duplicatedIdIssueDate;
+    private LocalDate duplicatedIdIssueDate;
 }

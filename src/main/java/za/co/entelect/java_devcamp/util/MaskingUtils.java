@@ -2,7 +2,7 @@ package za.co.entelect.java_devcamp.util;
 
 public final class MaskingUtils {
 
-    private MaskingUtils() {} // prevent instantiation
+    private MaskingUtils() {}
 
     public static String maskEmail(String email) {
         if (email == null || !email.contains("@")) return email;

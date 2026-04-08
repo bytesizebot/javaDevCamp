@@ -3,7 +3,7 @@ info:
   title: DHA Fulfilment Checks
   version: 1.0.0
 servers:
-  - url: http://localhost:7070
+  - url: http://localhost:8082
 paths:
   /dha/check/marital/{idNumber}:
     get:
@@ -174,8 +174,8 @@ components:
         livingStatus:
           type: string
           enum:
-            - "alive"
-            - "deceased"
+            - "Alive"
+            - "Deceased"
         deceasedDate:
           type: "string"
           format: "date"
