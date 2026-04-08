@@ -56,7 +56,7 @@ public class FulfilmentService implements IFulfilmentService {
                     doTypeCChecks(fulfillmentRequest);
                     break;
                 default:
-                    break;
+                    throw new IllegalStateException("Unknown fulfillment check type.");
             }
         }
     }
@@ -75,7 +75,7 @@ public class FulfilmentService implements IFulfilmentService {
     public void doTypeBChecks(FulfillmentRequest request) {
         try {
             String jsonMessage = objectMapper.writeValueAsString(request);
-            doTypeAChecks(request);
+            rabbitTemplate.convertAndSend(RabbitConfig.KYC_QUEUE, jsonMessage);
             rabbitTemplate.convertAndSend(RabbitConfig.DHA_QUEUE, jsonMessage);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
@@ -87,9 +87,9 @@ public class FulfilmentService implements IFulfilmentService {
     public void doTypeCChecks(FulfillmentRequest request) {
         try {
             String jsonMessage = objectMapper.writeValueAsString(request);
-            doTypeBChecks(request);
+            rabbitTemplate.convertAndSend(RabbitConfig.KYC_QUEUE, jsonMessage);
+            rabbitTemplate.convertAndSend(RabbitConfig.DHA_QUEUE, jsonMessage);
             rabbitTemplate.convertAndSend(RabbitConfig.CC_QUEUE, request);
-            //Credit check
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

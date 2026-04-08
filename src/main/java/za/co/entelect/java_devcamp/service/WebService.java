@@ -23,7 +23,6 @@ public class WebService implements IWebService {
     private final KYCWebService kycWebService;
     private final DHAWebService dhaWebService;
 
-
     @Override
     public void createCISCustomer(ProfileDto profileDto) {
         log.info("Creating a customer in the CIS");

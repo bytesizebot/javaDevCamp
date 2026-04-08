@@ -282,16 +282,38 @@
                 <artifactId>jaxws-maven-plugin</artifactId>
                 <version>4.0.3</version>
                 <executions>
+                    <!-- Credit Check WSDL -->
                     <execution>
+                        <id>generate-creditcheck</id>
                         <goals>
                             <goal>wsimport</goal>
                         </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>${project.basedir}/src/main/resources/wsdl/creditcheck.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <packageName>za.co.entelect.java_devcamp.creditcheck</packageName>
+                            <sourceDestDir>${project.build.directory}/generated-sources/wsdl</sourceDestDir>
+                            <keep>true</keep>
+                        </configuration>
+                    </execution>
+
+                    <!-- Fraud Check WSDL -->
+                    <execution>
+                        <id>generate-fraudcheck</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>${project.basedir}/src/main/resources/wsdl/fraud.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <packageName>za.co.entelect.java_devcamp.fraudcheck</packageName>
+                            <sourceDestDir>${project.build.directory}/generated-sources/wsdl</sourceDestDir>
+                            <keep>true</keep>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <wsdlDirectory>${project.basedir}/src/main/resources/wsdl</wsdlDirectory>
-                    <packageName>za.co.entelect.java_devcamp.wsdl</packageName>
-                </configuration>
             </plugin>
 
         </plugins>

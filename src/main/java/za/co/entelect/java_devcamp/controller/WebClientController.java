@@ -6,15 +6,16 @@ import org.openapitools.api.DhaApi;
 import org.openapitools.model.DuplicateIDDocumentCheck;
 import org.openapitools.model.LivingStatus;
 import org.openapitools.model.MaritalStatusResponse;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import za.co.entelect.java_devcamp.creditcheck.CreditCheckResponse;
 import za.co.entelect.java_devcamp.dto.ProfileDto;
+import za.co.entelect.java_devcamp.fraudcheck.FraudCheckResponse;
 import za.co.entelect.java_devcamp.serviceinterface.IWebService;
 import za.co.entelect.java_devcamp.soap.CreditClient;
+import za.co.entelect.java_devcamp.soap.FraudClient;
 import za.co.entelect.java_devcamp.webclientdto.KYCCheckDto;
-import za.co.entelect.java_devcamp.wsdl.CreditCheckResponse;
 
 @RestController
 @RequestMapping("web-client")
@@ -23,15 +24,23 @@ public class WebClientController implements DhaApi  {
 
     private final IWebService IWebService;
     private final CreditClient creditClient;
+    private final FraudClient fraudClient;
 
-    @Value("${remote.api.url}")
-    private String baseUrl;
-
-
-    public WebClientController(IWebService IWebService, CreditClient creditClient) {
-        this.IWebService = IWebService;
+    public WebClientController(za.co.entelect.java_devcamp.serviceinterface.IWebService iWebService, CreditClient creditClient, FraudClient fraudClient) {
+        IWebService = iWebService;
         this.creditClient = creditClient;
+        this.fraudClient = fraudClient;
     }
+//    private final SoapClient soapClient;
+//
+//    @Value("${remote.api.url}")
+//    private String baseUrl;
+//
+//
+//    public WebClientController(IWebService IWebService, SoapClient soapClient) {
+//        this.IWebService = IWebService;
+//        this.soapClient = soapClient;
+//    }
 
     @PostMapping("/cis/register-profile")
     public ResponseEntity<ProfileDto> registerUserProfile(@RequestBody ProfileDto profileDto){
@@ -75,6 +84,16 @@ public class WebClientController implements DhaApi  {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(creditCheckResponse);
     }
+
+    @GetMapping("fraudCheck/{customerId}/{IdNumber}")
+    @SecurityRequirements()
+    public ResponseEntity<FraudCheckResponse> getFraudStatus(@PathVariable Integer customerId,@PathVariable String IdNumber){
+        FraudCheckResponse fraudCheckResponse = fraudClient.getFraudCheck(customerId, IdNumber);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(fraudCheckResponse);
+    }
+
+
 
 
 }

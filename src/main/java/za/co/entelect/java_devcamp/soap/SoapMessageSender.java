@@ -21,7 +21,6 @@ public class SoapMessageSender extends HttpUrlConnectionMessageSender {
 
         connection.setRequestProperty("Authorization", "Basic " + encodedAuthorization);
 
-        // Many SOAP 1.1 servers require SOAPAction, even if empty
         connection.setRequestProperty("SOAPAction", "");
         super.prepareConnection(connection);
         log.info(encodedAuthorization);

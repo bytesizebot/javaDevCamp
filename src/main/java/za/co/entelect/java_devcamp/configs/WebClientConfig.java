@@ -16,4 +16,5 @@ public class WebClientConfig {
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
+
 }

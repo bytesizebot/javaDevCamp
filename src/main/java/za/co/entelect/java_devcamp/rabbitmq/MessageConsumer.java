@@ -113,10 +113,15 @@ public class MessageConsumer {
     }
 
     @RabbitListener(queues = RabbitConfig.DHA_QUEUE, ackMode = "MANUAL")
-    public void listenToDHACQueue(String message, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long tag) {
+    public void listenToDHAQueue(String message, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long tag) {
         doLivingStatusCheck(message, channel, tag);
         doDuplicateIDCheck(message, channel, tag);
         doMaritalStatusCheck(message, channel, tag);
+    }
+
+    @RabbitListener(queues = RabbitConfig.CC_QUEUE, ackMode = "MANUAL")
+    public void listenToCCQueue(String message, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long tag) {
+        doCreditCheck(message, channel, tag);
     }
 
 
@@ -284,5 +289,13 @@ public class MessageConsumer {
                 log.error("Failed to nack message", ioEx);
             }
         }
+    }
+
+    public void doCreditCheck(String message, Channel channel, long tag){
+
+    }
+
+    public void doFraudCheck(String message, Channel channel, long tag){
+
     }
 }

@@ -42,6 +42,8 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/token",
                                 "/web-client/creditCheck/**",
+                                "/web-client/fraudCheck/**",
+                                "/services/**",
                                 "/actuator/**"
                         ).permitAll()
                         .anyRequest().authenticated()
