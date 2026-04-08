@@ -4,10 +4,7 @@ import org.openapitools.model.DuplicateIDDocumentCheck;
 import org.openapitools.model.LivingStatus;
 import org.openapitools.model.MaritalStatusResponse;
 import za.co.entelect.java_devcamp.dto.ProfileDto;
-import za.co.entelect.java_devcamp.webclientdto.DuplicateIdCheckDto;
 import za.co.entelect.java_devcamp.webclientdto.KYCCheckDto;
-import za.co.entelect.java_devcamp.webclientdto.LivingStatusCheckDto;
-import za.co.entelect.java_devcamp.webclientdto.MaritalStatusCheckDto;
 
 public interface IWebService {
     void createCISCustomer(ProfileDto profileDto);

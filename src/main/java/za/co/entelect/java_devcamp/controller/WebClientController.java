@@ -2,24 +2,19 @@ package za.co.entelect.java_devcamp.controller;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
+import org.openapitools.api.DhaApi;
 import org.openapitools.model.DuplicateIDDocumentCheck;
 import org.openapitools.model.LivingStatus;
 import org.openapitools.model.MaritalStatusResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import za.co.entelect.java_devcamp.dto.ProfileDto;
 import za.co.entelect.java_devcamp.serviceinterface.IWebService;
 import za.co.entelect.java_devcamp.soap.CreditClient;
-import za.co.entelect.java_devcamp.webclientdto.DuplicateIdCheckDto;
 import za.co.entelect.java_devcamp.webclientdto.KYCCheckDto;
-import za.co.entelect.java_devcamp.webclientdto.LivingStatusCheckDto;
-import za.co.entelect.java_devcamp.webclientdto.MaritalStatusCheckDto;
 import za.co.entelect.java_devcamp.wsdl.CreditCheckResponse;
-import org.openapitools.api.DhaApi;
 
 @RestController
 @RequestMapping("web-client")

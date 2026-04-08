@@ -13,9 +13,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import za.co.entelect.java_devcamp.configs.TokenStore;
-import za.co.entelect.java_devcamp.webclientdto.DuplicateIdCheckDto;
-import za.co.entelect.java_devcamp.webclientdto.LivingStatusCheckDto;
-import za.co.entelect.java_devcamp.webclientdto.MaritalStatusCheckDto;
 
 @Slf4j
 @Service

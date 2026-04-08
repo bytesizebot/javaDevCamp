@@ -12,10 +12,7 @@ import za.co.entelect.java_devcamp.serviceinterface.IWebService;
 import za.co.entelect.java_devcamp.webclient.CISWebService;
 import za.co.entelect.java_devcamp.webclient.DHAWebService;
 import za.co.entelect.java_devcamp.webclient.KYCWebService;
-import za.co.entelect.java_devcamp.webclientdto.DuplicateIdCheckDto;
 import za.co.entelect.java_devcamp.webclientdto.KYCCheckDto;
-import za.co.entelect.java_devcamp.webclientdto.LivingStatusCheckDto;
-import za.co.entelect.java_devcamp.webclientdto.MaritalStatusCheckDto;
 
 @Slf4j
 @AllArgsConstructor

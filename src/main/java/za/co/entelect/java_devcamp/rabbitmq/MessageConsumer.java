@@ -22,10 +22,7 @@ import za.co.entelect.java_devcamp.serviceinterface.IFulfilmentService;
 import za.co.entelect.java_devcamp.util.MaskingUtils;
 import za.co.entelect.java_devcamp.webclient.DHAWebService;
 import za.co.entelect.java_devcamp.webclient.KYCWebService;
-import za.co.entelect.java_devcamp.webclientdto.DuplicateIdCheckDto;
 import za.co.entelect.java_devcamp.webclientdto.KYCCheckDto;
-import za.co.entelect.java_devcamp.webclientdto.LivingStatusCheckDto;
-import za.co.entelect.java_devcamp.webclientdto.MaritalStatusCheckDto;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
