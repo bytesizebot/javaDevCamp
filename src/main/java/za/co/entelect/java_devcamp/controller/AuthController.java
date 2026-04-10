@@ -44,7 +44,6 @@ public class AuthController {
     public ResponseEntity<LogInResponse> logIn(@RequestBody LogInRequest userDto) {
         try {
             LogInResponse response = iuserService.logIn(userDto);
-
             return ResponseEntity.ok(response);
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

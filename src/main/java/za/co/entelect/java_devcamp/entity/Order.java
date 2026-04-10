@@ -33,7 +33,7 @@ public class Order {
     @Column
     private String contractUrl;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<OrderItem> orderItems = new ArrayList<>();
 
     public Order(Long customerId, LocalDateTime createdAt, Status orderStatus, String contractUrl, List<OrderItem> orderItems) {

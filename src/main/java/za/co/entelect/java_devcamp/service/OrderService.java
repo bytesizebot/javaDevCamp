@@ -17,6 +17,7 @@ import za.co.entelect.java_devcamp.repository.OrderRepository;
 import za.co.entelect.java_devcamp.response.FulfilmentResponse;
 import za.co.entelect.java_devcamp.serviceinterface.*;
 import za.co.entelect.java_devcamp.util.ActionCompletedFulfilmentChecks;
+import za.co.entelect.java_devcamp.util.MaskingUtils;
 import za.co.entelect.java_devcamp.util.NotificationContent;
 import za.co.entelect.java_devcamp.webclient.CISWebService;
 import za.co.entelect.java_devcamp.webclientdto.CustomerDto;
@@ -55,7 +56,7 @@ public class OrderService implements IOrderService {
     @Override
     public Order createOrder(String customerEmail, Long productId) {
         log.info("Creating order because the customer is eligible for a product");
-
+        //check if order exists in pending state
         Product product = iProductService.getProductById(productId);
         CustomerDto customer = cisWebService.getCustomerByEmail(customerEmail);
 
@@ -79,9 +80,13 @@ public class OrderService implements IOrderService {
             productOrder.addProducts(item);
 
             orderRepository.save(productOrder);
+            String subject = "Received Order request created with OrderID " + productOrder.getOrderId().toString();
+            Notification notification = new Notification(customer.getUsername(),subject,NotificationContent.Order_created);
+            iNotificationService.sendNotification(notification);
 
             iFulfilmentService.determineFulfillmentCheck(productOrder, customer.getId(), customer.getIdNumber());
-            messageProducer.sendMessage("A new product needs fulfilment for customer: " + customerEmail);
+
+            messageProducer.sendMessage("A new product needs fulfilment for customer: " + MaskingUtils.maskEmail(customerEmail));
             return productOrder;
         }
     }
@@ -105,36 +110,32 @@ public class OrderService implements IOrderService {
         Long orderId = fulfillmentResponse.getOrderId();
 
         OrderDto customerOrder = getOrderById(orderId);
-        CustomerDto customerProfile = cisWebService.getCustomerById(customerOrder.customerId());
-        List<OrderItemDto> orderItems = getOrderById(orderId).orderItemsDto();
-        List<ProductDto> products = orderItems.stream()
-                .map(OrderItemDto::product)
-                .toList();
+//        CustomerDto customerProfile = cisWebService.getCustomerById(customerOrder.customerId());
+//        List<OrderItemDto> orderItems = getOrderById(orderId).orderItemsDto();
+//        List<ProductDto> products = orderItems.stream()
+//                .map(OrderItemDto::product)
+//             product   .toList();
 
         if(fulfillmentResponse.isSuccessful()){
             updateOrderStatus(fulfillmentResponse.getOrderId(), Status.APPROVED);
             log.info("Order for customer with ID: {} has been approved! Yay.",fulfillmentResponse.getCustomerId());
 
             //Generate contract Url call document service
+//            String subject = "Successful Order for OrderID " + orderId.toString();
+//            Notification notification = new Notification(customerProfile.getUsername(),subject, NotificationContent.Order_completed_success);
+//            iNotificationService.sendNotification(notification);
 
-            Notification notification = new Notification();
-            notification.setNotificationContent(NotificationContent.Order_completed_success);
-            notification.setRecipient(customerProfile.getUsername());
-            String subject = "Successful Order for OrderID " + orderId.toString();
-            notification.setSubject(subject);
-            iNotificationService.sendNotification(notification);
+          //  iDocumentService.generateCustomerContract(products, customerProfile);
+        }else{
+            updateOrderStatus(fulfillmentResponse.getOrderId(), Status.DECLINED);
+            log.info("Order for customer with ID: {} has been declined. Order request unsuccessful.",fulfillmentResponse.getCustomerId());
+            String subject = "Unsuccessful Order for OrderID " + orderId.toString();
 
-            iDocumentService.generateCustomerContract(products, customerProfile);
         }
 
-        updateOrderStatus(fulfillmentResponse.getOrderId(), Status.DECLINED);
 
-        log.info("Order for customer with ID: {} has been declined. Order request unsuccessful.",fulfillmentResponse.getCustomerId());
-        Notification notification = new Notification();
-        notification.setRecipient(customerProfile.getUsername());
-        String subject = "Unsuccessful Order for OrderID " + orderId.toString();
-        notification.setSubject(subject);
-        notification.setNotificationContent(NotificationContent.Fulfillment_checks_failed);
-        iNotificationService.sendNotification(notification);
+
+//        Notification notification = new Notification(customerProfile.getUsername(),subject ,NotificationContent.Fulfillment_checks_failed);
+//        iNotificationService.sendNotification(notification);
     }
 }

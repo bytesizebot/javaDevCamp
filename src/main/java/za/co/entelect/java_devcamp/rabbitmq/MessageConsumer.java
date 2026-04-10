@@ -66,7 +66,7 @@ public class MessageConsumer {
     public void listenToKYCQueue(String message, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long tag) {
         try {
             FulfillmentRequest request = objectMapper.readValue(message, FulfillmentRequest.class);
-            log.info("Processing DHA check for customer orderId: {}", MaskingUtils.maskId(request.getCorrelationId()));
+            log.info("Processing KYC check for customer orderId: {}", MaskingUtils.maskId(request.getCorrelationId()));
 
             KYCCheckDto kycResponse = null;
             int maxRetries = 3;
@@ -105,13 +105,10 @@ public class MessageConsumer {
 
             channel.basicAck(tag, false);
             FulfilmentResponse fulfilmentResponse = new FulfilmentResponse(request.getOrderId(), request.getCorrelationId(), request.getCustomerId(), request.getFulfillmentType(), false);
-            if (request.getFulfillmentType().equals("A")) {
                 iFulfilmentService.processKYCCheck(kycResponse, fulfilmentResponse);
-            }
-
 
         } catch (Exception e) {
-            log.error("Failed to process message after retries", e);
+            log.error("Failed to process message after retries. This service is currently unavailable", e);
             try {
                 channel.basicNack(tag, false, false);
             } catch (IOException ioEx) {
@@ -182,7 +179,7 @@ public class MessageConsumer {
             iFulfilmentService.processLivingStatusCheck(livingStatusResponse, fulfilmentResponse);
 
         } catch (Exception e) {
-            log.error("Failed to process message after retries", e);
+            log.error("Failed to process living status message after retries", e);
             try {
                 channel.basicNack(tag, false, false);
             } catch (IOException ioEx) {
@@ -237,7 +234,7 @@ public class MessageConsumer {
             iFulfilmentService.processDuplicateIdCheck(duplicateIDResponse, fulfilmentResponse);
 
         } catch (Exception e) {
-            log.error("Failed to process message after retries", e);
+            log.error("Failed to process message for duplicate Ids after retries", e);
             try {
                 channel.basicNack(tag, false, false);
             } catch (IOException ioEx) {
@@ -306,7 +303,7 @@ public class MessageConsumer {
         try {
             FulfillmentRequest request = objectMapper.readValue(message, FulfillmentRequest.class);
             if (Objects.equals(request.getFulfillmentType(), "C")) {
-                log.info("Processing DHA Marital Status check for customer orderId: {}", MaskingUtils.maskId(request.getCorrelationId()));
+                log.info("Processing Credit check for customer orderId: {}", MaskingUtils.maskId(request.getCorrelationId()));
 
                 CreditCheckResponse creditCheckResponse = null;
                 int maxRetries = 3;
@@ -324,8 +321,7 @@ public class MessageConsumer {
                             Thread.sleep((long) Math.pow(2, attempt) * 1000);
 
                         } else if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
-                            log.info("Marital status information not found for customer with idNumber={}", MaskingUtils.maskId(request.getCustomerIdNumber()));
-                            creditCheckResponse = null;
+                            log.info("Credit information not found for customer with idNumber={}", MaskingUtils.maskId(request.getCustomerIdNumber()));
                             break;
 
                         } else {
@@ -361,7 +357,7 @@ public class MessageConsumer {
     public void doFraudCheck(String message, Channel channel, long tag) {
         try {
             FulfillmentRequest request = objectMapper.readValue(message, FulfillmentRequest.class);
-            if (Objects.equals(request.getFulfillmentType(), "C")) {
+
                 log.info("Processing Fraud check for customer orderId: {}", MaskingUtils.maskId(request.getCorrelationId()));
 
                 FraudCheckResponse fraudCheckResponse = null;
@@ -381,7 +377,7 @@ public class MessageConsumer {
 
                         } else if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
                             log.info("Fraud information not found for customer with idNumber={}", MaskingUtils.maskId(request.getCustomerIdNumber()));
-                            fraudCheckResponse = null;
+
                             break;
 
                         } else {
@@ -403,7 +399,7 @@ public class MessageConsumer {
                 channel.basicAck(tag, false);
                 FulfilmentResponse fulfilmentResponse = new FulfilmentResponse(request.getOrderId(), request.getCorrelationId(), request.getCustomerId(), request.getFulfillmentType(), false);
                 iFulfilmentService.processFraudCheck(fraudCheckResponse, fulfilmentResponse);
-            }
+
         } catch (Exception e) {
             log.error("Failed to process message after retries", e);
             try {

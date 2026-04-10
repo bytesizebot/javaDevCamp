@@ -10,9 +10,12 @@ import za.co.entelect.java_devcamp.entity.Profile;
 import za.co.entelect.java_devcamp.entity.User;
 import za.co.entelect.java_devcamp.exception.ResourceNotFoundException;
 import za.co.entelect.java_devcamp.mapper.ProfileMapper;
+import za.co.entelect.java_devcamp.model.Notification;
 import za.co.entelect.java_devcamp.repository.ProfileRepository;
 import za.co.entelect.java_devcamp.repository.UserRepository;
+import za.co.entelect.java_devcamp.serviceinterface.INotificationService;
 import za.co.entelect.java_devcamp.serviceinterface.IProfileService;
+import za.co.entelect.java_devcamp.util.NotificationContent;
 
 import java.util.List;
 
@@ -24,6 +27,7 @@ public class ProfileService implements IProfileService {
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
     private final ProfileMapper profileMapper;
+    private final INotificationService iNotificationService;
     private static Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Override
@@ -40,6 +44,10 @@ public class ProfileService implements IProfileService {
         profile.setUser(user);
         Profile savedProfile = profileRepository.save(profile);
         profileMapper.toProfileDto(savedProfile);
+
+        String subject = "Welcome " + user.getUsername() + " !";
+        Notification notification = new Notification(user.getUsername(), subject, NotificationContent.Welcome_message);
+        iNotificationService.sendNotification(notification);
     }
 
     @Override

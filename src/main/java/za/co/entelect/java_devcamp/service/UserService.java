@@ -59,6 +59,7 @@ public class UserService implements IUserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         User savedUser = userRepository.save(user);
         userMapper.toDto(savedUser);
+
     }
 
     private String fetchRsToken(String username) {
@@ -88,6 +89,7 @@ public class UserService implements IUserService {
         ResponseEntity<String> authResponse =
                 restTemplate.postForEntity(authServiceUrl, entity, String.class);
         tokenStore.setToken(authResponse.getBody());
+
         return authResponse.getBody();
     }
 
@@ -101,6 +103,7 @@ public class UserService implements IUserService {
             throw new IncorrectPasswordException(("Incorrect password provided"));
         }
         String token = generateToken(request.username());
+        tokenStore.setRole(user.getRole().name());
         return new LogInResponse(token, user.getUsername(), "Login successful");
     }
 }

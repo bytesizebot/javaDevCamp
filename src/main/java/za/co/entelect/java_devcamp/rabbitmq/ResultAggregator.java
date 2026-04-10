@@ -1,16 +1,22 @@
 package za.co.entelect.java_devcamp.rabbitmq;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.support.AmqpHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 import za.co.entelect.java_devcamp.configs.RabbitConfig;
-import za.co.entelect.java_devcamp.model.Notification;
 import za.co.entelect.java_devcamp.model.Result;
+import za.co.entelect.java_devcamp.model.TypeAMessage;
+import za.co.entelect.java_devcamp.request.FulfillmentRequest;
 import za.co.entelect.java_devcamp.response.FulfilmentResponse;
-import za.co.entelect.java_devcamp.serviceinterface.INotificationService;
 import za.co.entelect.java_devcamp.serviceinterface.IOrderService;
-import za.co.entelect.java_devcamp.util.NotificationContent;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,74 +25,132 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ResultAggregator {
     private final Map<String, Map<String, Result>> store = new ConcurrentHashMap<>();
     private final IOrderService iOrderService;
+    private final ObjectMapper objectMapper;
 
-    public ResultAggregator(IOrderService iOrderService) {
+    public ResultAggregator(IOrderService iOrderService, ObjectMapper objectMapper) {
         this.iOrderService = iOrderService;
+        this.objectMapper = objectMapper;
     }
 
-    @RabbitListener(queues = RabbitConfig.RESULTA_QUEUE)
-    public void handleTypeAResult(Result result, FulfilmentResponse response) {
-        if(result.getStatus().equals("PASS")){
-            response.setSuccessful(true);
+    @RabbitListener(queues = RabbitConfig.RESULT_A_QUEUE, ackMode = "MANUAL")
+    public void handleTypeAResult(String message, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long tag) {
+        try {
+            // Deserialize message
+            Result result = objectMapper.readValue(message, Result.class);
+
+            FulfilmentResponse response = new FulfilmentResponse(
+                    result.getOrderId(),
+                    result.getCorrelationId(),
+                    result.getCustomerId(),
+                    result.getFulfillmentType(),
+                    "PASS".equals(result.getStatus())
+            );
+
             iOrderService.completeOrder(response);
-        }
-        response.setSuccessful(false);
-        iOrderService.completeOrder(response);
-    }
+            channel.basicAck(tag, false);
 
-    @RabbitListener(queues = RabbitConfig.RESULTB_QUEUE)
-    public void handleResult(Result result, FulfilmentResponse response) {
-
-        String requestId = result.getRequestID();
-
-        store.putIfAbsent(requestId, new ConcurrentHashMap<>());
-        Map<String, Result> results = store.get(requestId);
-
-        results.put(result.getFulfillmentCheck(), result);
-
-        if (results.size() == 4) {
-
-            boolean allPassed = results.values().stream()
-                    .allMatch(r -> "PASS".equals(r.getStatus()));
-            if (allPassed) {
-                log.info("FulfilmentType B passes");
-                response.setSuccessful(true);
-                iOrderService.completeOrder(response);
-
-            } else {
-                log.info("FulfilmentType B at least one failure");
-                response.setSuccessful(false);
-                iOrderService.completeOrder(response);
+        } catch (Exception e) {
+            try {
+                channel.basicNack(tag, false, false);
+            } catch (IOException ioException) {
+                log.error("Failed to nack message", ioException);
             }
-            store.remove(requestId);
+            log.error("Failed to process message: " + message, e);
         }
     }
 
-    @RabbitListener(queues = RabbitConfig.RESULTC_QUEUE)
-    public void handleCResult(Result result, FulfilmentResponse response) {
+    @RabbitListener(queues = RabbitConfig.RESULT_B_QUEUE, ackMode = "MANUAL")
+    public void handleTypeBResult(String message, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long tag) throws IOException {
+        try {
+            // Deserialize message
+            Result result = objectMapper.readValue(message, Result.class);
 
-        String requestId = result.getRequestID();
+            // Build response
+            FulfilmentResponse response = new FulfilmentResponse(
+                    result.getOrderId(),
+                    result.getCorrelationId(),
+                    result.getCustomerId(),
+                    result.getFulfillmentType(),
+                    result.isSuccessful()
+            );
 
-        store.putIfAbsent(requestId, new ConcurrentHashMap<>());
-        Map<String, Result> results = store.get(requestId);
+            String requestId = result.getRequestID();
 
-        results.put(result.getFulfillmentCheck(), result);
+            // Initialize results map for this requestId if not present
+            store.putIfAbsent(requestId, new ConcurrentHashMap<>());
+            Map<String, Result> results = store.get(requestId);
 
-        if (results.size() == 6) {
+            // Store current result
+            results.put(result.getFulfillmentCheck(), result);
 
-            boolean allPassed = results.values().stream()
-                    .allMatch(r -> "PASS".equals(r.getStatus()));
+            // Check if all results for this request are in
+            if (results.size() == 4) {
+                boolean allPassed = results.values().stream()
+                        .allMatch(r -> "PASS".equals(r.getStatus()));
 
-            if (allPassed) {
-                log.info("FulfilmentType C passes");
-                response.setSuccessful(true);
+                response.setSuccessful(allPassed);
                 iOrderService.completeOrder(response);
-            } else {
-                log.info("FulfilmentType C at least one failure");
-                response.setSuccessful(false);
-                iOrderService.completeOrder(response);
+
+                log.info("FulfilmentType B {}",
+                        allPassed ? "passes" : "at least one failure");
+
+                // Cleanup
+                store.remove(requestId);
             }
-            store.remove(requestId);
+
+            // Acknowledge message after successful processing
+            channel.basicAck(tag, false);
+
+        } catch (Exception e) {
+            // NACK the message, optionally requeue for retry
+            try {
+                channel.basicNack(tag, false, true);
+            } catch (IOException ioException) {
+                channel.basicNack(tag, false, false);
+                log.error("Failed to nack message", ioException);
+            }
+            log.error("Failed to process message", e);
+        }
+    }
+
+
+    @RabbitListener(queues = RabbitConfig.RESULT_C_QUEUE, ackMode = "MANUAL")
+    public void handleTypeCResult(String message, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long tag) {
+        try {
+            Result result = null;
+            FulfilmentResponse response = null;
+            try {
+                result = objectMapper.readValue(message, Result.class);
+                response = new FulfilmentResponse(result.getOrderId(), result.getCorrelationId(), result.getCustomerId(), result.getFulfillmentType(), result.isSuccessful());
+
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+            String requestId = result.getRequestID();
+
+            store.putIfAbsent(requestId, new ConcurrentHashMap<>());
+            Map<String, Result> results = store.get(requestId);
+
+            results.put(result.getFulfillmentCheck(), result);
+
+            if (results.size() == 6) {
+
+                boolean allPassed = results.values().stream()
+                        .allMatch(r -> "PASS".equals(r.getStatus()));
+
+                if (allPassed) {
+                    log.info("FulfilmentType C passes");
+                    response.setSuccessful(true);
+                    iOrderService.completeOrder(response);
+                } else {
+                    log.info("FulfilmentType C at least one failure");
+                    response.setSuccessful(false);
+                    iOrderService.completeOrder(response);
+                }
+                store.remove(requestId);
+            }
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
         }
     }
 }

@@ -19,14 +19,12 @@ import za.co.entelect.java_devcamp.model.Result;
 import za.co.entelect.java_devcamp.request.FulfillmentRequest;
 import za.co.entelect.java_devcamp.response.FulfilmentResponse;
 import za.co.entelect.java_devcamp.serviceinterface.IFulfilmentService;
-import za.co.entelect.java_devcamp.util.ActionCompletedFulfilmentChecks;
 import za.co.entelect.java_devcamp.webclientdto.KYCCheckDto;
 import za.co.entelect.java_devcamp.webclientdto.TaxCompliance;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 @AllArgsConstructor
 @Slf4j
@@ -52,7 +50,7 @@ public class FulfilmentService implements IFulfilmentService {
                     doTypeAChecks(fulfillmentRequest);
                     break;
                 case "B":
-                    fulfillmentRequest.setFulfillmentType("C");
+                    fulfillmentRequest.setFulfillmentType("B");
                     doTypeBChecks(fulfillmentRequest);
                     break;
                 case "C":
@@ -104,149 +102,218 @@ public class FulfilmentService implements IFulfilmentService {
     //Process all the messages from queues
     @Override
     public void processKYCCheck(KYCCheckDto response, FulfilmentResponse fulfilmentResponse) {
-        Set<TaxCompliance> compliant = Set.of(TaxCompliance.amber, TaxCompliance.green);
+        if (response != null) {
+            Set<TaxCompliance> compliant = Set.of(TaxCompliance.amber, TaxCompliance.green);
 
-        Result kycResult = new Result(fulfilmentResponse.getCorrelationId(), "KYC Service", "KYC check", "");
-        String fulfillmentType = fulfilmentResponse.getFulfillmentType();
+            Result kycResult = new Result(fulfilmentResponse.getCorrelationId(), "KYC Service", "KYC check", "",
+                    fulfilmentResponse.getOrderId(), fulfilmentResponse.getCorrelationId(), fulfilmentResponse.getCustomerId(), fulfilmentResponse.getFulfillmentType(), fulfilmentResponse.isSuccessful());
+            String fulfillmentType = fulfilmentResponse.getFulfillmentType();
 
-        if (response.isPrimaryIndicator() && compliant.contains(response.getTaxCompliance())) {
-            log.info("Continue process to aggregate results");
-            kycResult.setStatus("PASS");
+            if (response.isPrimaryIndicator() && compliant.contains(response.getTaxCompliance())) {
+                log.info("Customer is tax compliant. Check passes");
+                kycResult.setStatus("PASS");
+            } else {
+                kycResult.setStatus("FAIL");
+                log.info("Customer is not tax compliant. Check failed");
+            }
+
+            try {
+                String jsonMessage = objectMapper.writeValueAsString(kycResult);
+
+                switch (fulfillmentType) {
+                    case "A":
+                        rabbitTemplate.convertAndSend(RabbitConfig.RESULT_A_QUEUE, jsonMessage);
+                        break;
+                    case "B":
+                        rabbitTemplate.convertAndSend(RabbitConfig.RESULT_B_QUEUE, jsonMessage);
+                        break;
+                    case "C":
+                        rabbitTemplate.convertAndSend(RabbitConfig.RESULT_C_QUEUE, jsonMessage);
+                        break;
+                    default:
+                        throw new IllegalStateException("Unknown fulfillment check type.");
+                }
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         }
-        kycResult.setStatus("FAIL");
+        log.info("Something went with processing the kyc status. Try again later");
 
-        switch (fulfillmentType) {
-            case "A":
-                rabbitTemplate.convertAndSend(RabbitConfig.RESULTA_QUEUE, kycResult);
-                break;
-            case "B":
-                rabbitTemplate.convertAndSend(RabbitConfig.RESULTB_QUEUE, kycResult);
-                break;
-            case "C":
-                rabbitTemplate.convertAndSend(RabbitConfig.RESULTC_QUEUE, kycResult);
-                break;
-            default:
-                throw new IllegalStateException("Unknown fulfillment check type.");
-        }
     }
 
     @Override
     public void processFraudCheck(FraudCheckResponse response, FulfilmentResponse fulfilmentResponse) {
-        Result fraudResult = new Result(fulfilmentResponse.getCorrelationId(), "Fraud  Service", "Fraud check", "");
+        if (response != null) {
+            Result fraudResult = new Result(fulfilmentResponse.getCorrelationId(), "Fraud  Service", "Fraud check", "",
+                    fulfilmentResponse.getOrderId(), fulfilmentResponse.getCorrelationId(), fulfilmentResponse.getCustomerId(), fulfilmentResponse.getFulfillmentType(), fulfilmentResponse.isSuccessful());
 
-        String fulfillmentType = fulfilmentResponse.getFulfillmentType();
+            String fulfillmentType = fulfilmentResponse.getFulfillmentType();
 
-        if (response.getBankStatus().equals("Active") && response.getNationalStatus().equals("Valid")) {
-            fraudResult.setStatus("PASS");
+            if (response.getBankStatus().equals("Active") && response.getNationalStatus().equals("Valid")) {
+                fraudResult.setStatus("PASS");
+                log.info("Customer has no fraudulent activities. Check passes");
+            }else{
+                fraudResult.setStatus("FAIL");
+                log.info("Customer has been flagged for fraudulent activities. Check fails");
+            }
+
+            try {
+                String jsonMessage = objectMapper.writeValueAsString(fraudResult);
+                switch (fulfillmentType) {
+                    case "B":
+                        rabbitTemplate.convertAndSend(RabbitConfig.RESULT_B_QUEUE, jsonMessage);
+                        break;
+                    case "C":
+                        rabbitTemplate.convertAndSend(RabbitConfig.RESULT_C_QUEUE, jsonMessage);
+                        break;
+                    default:
+                        throw new IllegalStateException("Unknown fulfillment check type.");
+                }
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         }
-        fraudResult.setStatus("FAIL");
-
-        switch (fulfillmentType) {
-            case "B":
-                rabbitTemplate.convertAndSend(RabbitConfig.RESULTB_QUEUE, fraudResult);
-                break;
-            case "C":
-                rabbitTemplate.convertAndSend(RabbitConfig.RESULTC_QUEUE, fraudResult);
-                break;
-            default:
-                throw new IllegalStateException("Unknown fulfillment check type.");
-        }
+        log.info("Something went with processing the fraud status. Try again later");
     }
 
     @Override
     public void processLivingStatusCheck(LivingStatus response, FulfilmentResponse fulfilmentResponse) {
-        Result livingResult = new Result(fulfilmentResponse.getCorrelationId(), "DHA Service", "Living status check", "");
-        String fulfillmentType = fulfilmentResponse.getFulfillmentType();
+        if (response != null) {
+            Result livingResult = new Result(fulfilmentResponse.getCorrelationId(), "DHA Service", "Living status check", "",
+                    fulfilmentResponse.getOrderId(), fulfilmentResponse.getCorrelationId(), fulfilmentResponse.getCustomerId(), fulfilmentResponse.getFulfillmentType(), fulfilmentResponse.isSuccessful());
+            String fulfillmentType = fulfilmentResponse.getFulfillmentType();
 
-        if (response.getLivingStatus().getValue().equals("Alive")) {
-            livingResult.setStatus("PASS");
+            if (response.getLivingStatus().getValue().equals("Alive")) {
+                livingResult.setStatus("PASS");
+                log.info("Customer is alive and hopefully well. Check passes");
+
+            }else {
+                livingResult.setStatus("FAIL");
+                log.info("Customer living status check is undesirable. Check fails");
+            }
+
+
+            try {
+                String jsonMessage = objectMapper.writeValueAsString(livingResult);
+                switch (fulfillmentType) {
+                    case "B":
+                        rabbitTemplate.convertAndSend(RabbitConfig.RESULT_B_QUEUE, jsonMessage);
+                        break;
+                    case "C":
+                        rabbitTemplate.convertAndSend(RabbitConfig.RESULT_C_QUEUE, jsonMessage);
+                        break;
+                    default:
+                        throw new IllegalStateException("Unknown fulfillment check type.");
+                }
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         }
-
-        livingResult.setStatus("FAIL");
-
-        switch (fulfillmentType) {
-            case "B":
-                rabbitTemplate.convertAndSend(RabbitConfig.RESULTB_QUEUE, livingResult);
-                break;
-            case "C":
-                rabbitTemplate.convertAndSend(RabbitConfig.RESULTC_QUEUE, livingResult);
-                break;
-            default:
-                throw new IllegalStateException("Unknown fulfillment check type.");
-        }
-
+        log.info("Something went with processing the living status. Try again later");
     }
 
     @Override
     public void processDuplicateIdCheck(DuplicateIDDocumentCheck response, FulfilmentResponse fulfilmentResponse) {
-        Result duplicateResult = new Result(fulfilmentResponse.getCorrelationId(), "DHA Service", "Duplicate Id check", "");
-        String fulfillmentType = fulfilmentResponse.getFulfillmentType();
+        if (response != null) {
+            Result duplicateResult = new Result(fulfilmentResponse.getCorrelationId(), "DHA Service", "Duplicate Id check", "",
+                    fulfilmentResponse.getOrderId(), fulfilmentResponse.getCorrelationId(), fulfilmentResponse.getCustomerId(), fulfilmentResponse.getFulfillmentType(), fulfilmentResponse.isSuccessful());
+            String fulfillmentType = fulfilmentResponse.getFulfillmentType();
 
-        if (response.getHasDuplicateId().equals(false)) {
-            duplicateResult.setStatus("PASS");
+            if (response.getHasDuplicateId().equals(false)) {
+                duplicateResult.setStatus("PASS");
+                log.info("Customer has no duplicate Id. Check passes");
+            }else {
+                duplicateResult.setStatus("FAIL");
+                log.info("Customer has a duplicate Id number. Check fails");
+            }
+
+
+            try {
+                String jsonMessage = objectMapper.writeValueAsString(duplicateResult);
+                switch (fulfillmentType) {
+                    case "B":
+                        rabbitTemplate.convertAndSend(RabbitConfig.RESULT_B_QUEUE, jsonMessage);
+                        break;
+                    case "C":
+                        rabbitTemplate.convertAndSend(RabbitConfig.RESULT_C_QUEUE, jsonMessage);
+                        break;
+                    default:
+                        throw new IllegalStateException("Unknown fulfillment check type.");
+                }
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         }
-        duplicateResult.setStatus("FAIL");
-
-        switch (fulfillmentType) {
-            case "B":
-                rabbitTemplate.convertAndSend(RabbitConfig.RESULTB_QUEUE, duplicateResult);
-                break;
-            case "C":
-                rabbitTemplate.convertAndSend(RabbitConfig.RESULTC_QUEUE, duplicateResult);
-                break;
-            default:
-                throw new IllegalStateException("Unknown fulfillment check type.");
-        }
-
+        log.info("Something went wrong with processing the duplicate Id. Please try again later");
     }
 
     @Override
     public void processMaritalStatusCheck(MaritalStatusResponse response, FulfilmentResponse fulfilmentResponse) {
-        String status = response.getCurrentStatus() != null ? String.valueOf(response.getCurrentStatus().getStatus()) : "";
+        if (response != null) {
+            String status = response.getCurrentStatus() != null ? String.valueOf(response.getCurrentStatus().getStatus()) : "";
 
-        Result maritalResult = new Result(fulfilmentResponse.getCorrelationId(), "DHA Service", "Marital status check", "");
-        String fulfillmentType = fulfilmentResponse.getFulfillmentType();
+            Result maritalResult = new Result(fulfilmentResponse.getCorrelationId(), "DHA Service", "Marital status check", "", fulfilmentResponse.getOrderId(), fulfilmentResponse.getCorrelationId(), fulfilmentResponse.getCustomerId(), fulfilmentResponse.getFulfillmentType(), fulfilmentResponse.isSuccessful());
+            String fulfillmentType = fulfilmentResponse.getFulfillmentType();
 
-        if ("Married".equals(status != null ? status.trim() : "")) {
-            log.info("Customer is married");
-            maritalResult.setStatus("PASS");
+            if ("Married".equals(status != null ? status.trim() : "")) {
+                log.info("Customer is married. Check passes");
+                maritalResult.setStatus("PASS");
+            }else{
+                log.info("Customer is not married. Check fails");
+                maritalResult.setStatus("FAIL");
+            }
+
+            try {
+                String jsonMessage = objectMapper.writeValueAsString(maritalResult);
+                switch (fulfillmentType) {
+                    case "B":
+                        rabbitTemplate.convertAndSend(RabbitConfig.RESULT_B_QUEUE, jsonMessage);
+                        break;
+                    case "C":
+                        rabbitTemplate.convertAndSend(RabbitConfig.RESULT_C_QUEUE, jsonMessage);
+                        break;
+                    default:
+                        throw new IllegalStateException("Unknown fulfillment check type.");
+                }
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         }
-
-        log.info("Customer is not married");
-        maritalResult.setStatus("FAIL");
-
-        switch (fulfillmentType) {
-            case "B":
-                rabbitTemplate.convertAndSend(RabbitConfig.RESULTB_QUEUE, maritalResult);
-                break;
-            case "C":
-                rabbitTemplate.convertAndSend(RabbitConfig.RESULTC_QUEUE, maritalResult);
-                break;
-            default:
-                throw new IllegalStateException("Unknown fulfillment check type.");
-        }
+        log.info("Something went wrong with the martial status check. Please try again later");
     }
 
     @Override
     public void processCreditCheck(CreditCheckResponse response, FulfilmentResponse fulfilmentResponse) {
-        Result creditResult = new Result(fulfilmentResponse.getCorrelationId(), "Credit Service", "Credit status check", "");
-        String fulfillmentType = fulfilmentResponse.getFulfillmentType();
+        if (response != null) {
+            Result creditResult = new Result(fulfilmentResponse.getCorrelationId(), "Credit Service", "Credit status check", "",
+                    fulfilmentResponse.getOrderId(), fulfilmentResponse.getCorrelationId(), fulfilmentResponse.getCustomerId(), fulfilmentResponse.getFulfillmentType(), fulfilmentResponse.isSuccessful());
+            String fulfillmentType = fulfilmentResponse.getFulfillmentType();
 
-        if (response.getCreditCheckResult().equals("RED")) {
-            creditResult.setStatus("FAIL");
-        }
+            if (response.getCreditCheckResult().equals("RED")) {
+                creditResult.setStatus("FAIL");
+                log.info("Customer has undesirable credit status. Check fails");
+            }else {
+                creditResult.setStatus("PASS");
+                log.info("Customer has a desirable credit status. Check passes");
+            }
 
-        creditResult.setStatus("PASS");
-
-        switch (fulfillmentType) {
-            case "B":
-                rabbitTemplate.convertAndSend(RabbitConfig.RESULTB_QUEUE, creditResult);
-                break;
-            case "C":
-                rabbitTemplate.convertAndSend(RabbitConfig.RESULTC_QUEUE, creditResult);
-                break;
-            default:
-                throw new IllegalStateException("Unknown fulfillment check type.");
+            try {
+                String jsonMessage = objectMapper.writeValueAsString(creditResult);
+                switch (fulfillmentType) {
+                    case "B":
+                        rabbitTemplate.convertAndSend(RabbitConfig.RESULT_B_QUEUE, jsonMessage);
+                        break;
+                    case "C":
+                        rabbitTemplate.convertAndSend(RabbitConfig.RESULT_C_QUEUE, jsonMessage);
+                        break;
+                    default:
+                        throw new IllegalStateException("Unknown fulfillment check type.");
+                }
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            log.info("Something went wrong with credit check. Please try again later");
         }
 
     }

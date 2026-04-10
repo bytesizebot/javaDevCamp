@@ -23,6 +23,5 @@ public class SoapMessageSender extends HttpUrlConnectionMessageSender {
 
         connection.setRequestProperty("SOAPAction", "");
         super.prepareConnection(connection);
-        log.info(encodedAuthorization);
     }
 }

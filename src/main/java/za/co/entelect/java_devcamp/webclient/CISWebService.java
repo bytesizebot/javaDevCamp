@@ -10,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import za.co.entelect.java_devcamp.dto.ProfileDto;
 import za.co.entelect.java_devcamp.util.MaskingUtils;
+import za.co.entelect.java_devcamp.webclientdto.CustomerAccountDto;
 import za.co.entelect.java_devcamp.webclientdto.CustomerDto;
 
 @Slf4j
@@ -105,6 +106,32 @@ public class CISWebService {
                     .bodyValue(profileDto)
                     .retrieve()
                     .bodyToMono(ProfileDto.class)
+                    .block();
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.toString());
+            throw e;
+        }
+    }
+
+    public CustomerAccountDto addAccountToCustomer(CustomerAccountDto customerAccountDto) {
+        log.info("Registering a profile with the cis");
+
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        log.info("Bearer token used:" + authHeader);
+
+        try {
+            return webClient.post()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/v1/customer/{customerId}/accounts/{accountTypeId}")
+                            .build(
+                                    customerAccountDto.getCustomerId(),
+                                    customerAccountDto.getAccountId()
+                            ))
+                    .header(HttpHeaders.AUTHORIZATION, authHeader)
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .retrieve()
+                    .bodyToMono(CustomerAccountDto.class)
                     .block();
         } catch (Exception e) {
             e.printStackTrace();

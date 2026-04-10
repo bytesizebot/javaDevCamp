@@ -19,12 +19,12 @@ public class RabbitConfig {
     public static final String KYC_QUEUE = "kycCheckQueue";
     public static final String DHA_QUEUE = "dhaCheckQueue";
     public static final String CC_QUEUE = "creditCheckQueue";
-    public static final String FRAUD_QUEUE = "creditCheckQueue";
+    public static final String FRAUD_QUEUE = "fraudCheckQueue";
     public static final String RETRY_QUEUE = "fulfilmentCheck.retry.queue";
     public static final String DLQ = "Fulfilment.dlq";
-    public static final String RESULTA_QUEUE = "resultQueue";
-    public static final String RESULTB_QUEUE = "resultQueue";
-    public static final String RESULTC_QUEUE = "resultQueue";
+    public static final String RESULT_A_QUEUE = "fulfillmentTypeAQueue";
+    public static final String RESULT_B_QUEUE = "fulfillmentTypeBQueue";
+    public static final String RESULT_C_QUEUE = "fulfillmentTypeCQueue";
 
     //exchanges
     public static final String EXCHANGE_NAME = "FulfilmentExchange";
@@ -52,26 +52,27 @@ public class RabbitConfig {
     @Bean
     public Queue ccQueue() {
         return new Queue(CC_QUEUE, true);
-    }    @Bean
+    }
+
+    @Bean
     public Queue fraudQueue() {
         return new Queue(FRAUD_QUEUE, true);
     }
 
     @Bean
     public Queue resultAQueue() {
-        return new Queue(RESULTA_QUEUE, true);
+        return new Queue(RESULT_A_QUEUE, true);
     }
+    @Bean
     public Queue resultBQueue() {
-        return new Queue(RESULTB_QUEUE, true);
+        return new Queue(RESULT_B_QUEUE, true);
     }
+    @Bean
     public Queue resultCQueue() {
-        return new Queue(RESULTC_QUEUE, true);
+        return new Queue(RESULT_C_QUEUE, true);
     }
 
-    @Bean
-    public Queue mainQueue() {
-        return QueueBuilder.durable("mainQueue").withArgument("x-dead-letter-exchange", "dlxExchange").withArgument("x-dead-letter-routing-key", "dlq").build();
-    }
+
 
 
     @Bean

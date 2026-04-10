@@ -15,6 +15,7 @@ import za.co.entelect.java_devcamp.mapper.ProfileMapper;
 import za.co.entelect.java_devcamp.repository.ProfileRepository;
 import za.co.entelect.java_devcamp.repository.UserRepository;
 import za.co.entelect.java_devcamp.service.ProfileService;
+import za.co.entelect.java_devcamp.serviceinterface.INotificationService;
 
 import java.util.Optional;
 
@@ -31,6 +32,8 @@ class ProfileServiceTest {
     private  UserRepository userRepository;
     @Mock
     private ProfileMapper profileMapper;
+    @Mock
+    private INotificationService iNotificationService;
     @InjectMocks
     private ProfileService profileService;
 
@@ -42,7 +45,7 @@ class ProfileServiceTest {
 
     @BeforeEach
     void setup(){
-        profileService = new ProfileService(profileRepository, userRepository, profileMapper);
+        profileService = new ProfileService(profileRepository, userRepository, profileMapper, iNotificationService);
         mockProfileEntity = Profile
                 .builder()
                 .profileId(1L)

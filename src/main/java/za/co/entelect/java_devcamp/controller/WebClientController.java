@@ -15,6 +15,7 @@ import za.co.entelect.java_devcamp.fraudcheck.FraudCheckResponse;
 import za.co.entelect.java_devcamp.serviceinterface.IWebService;
 import za.co.entelect.java_devcamp.soap.CreditClient;
 import za.co.entelect.java_devcamp.soap.FraudClient;
+import za.co.entelect.java_devcamp.webclientdto.CustomerAccountDto;
 import za.co.entelect.java_devcamp.webclientdto.KYCCheckDto;
 
 @RestController
@@ -37,6 +38,13 @@ public class WebClientController implements DhaApi  {
         IWebService.createCISCustomer(profileDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(profileDto);
+    }
+
+    @PostMapping("/cis/add-account")
+    public ResponseEntity<CustomerAccountDto> registerUserProfile(@RequestBody CustomerAccountDto accountDto) throws IllegalAccessException {
+        IWebService.addCustomerAccount(accountDto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(accountDto);
     }
 
     @GetMapping("/kyc/{customerId}")

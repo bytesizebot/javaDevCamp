@@ -43,11 +43,11 @@ public class OrderController {
 
     @PostMapping("")
     @Operation(summary = "create a product order")
-    public ResponseEntity<?> createOrder(@RequestBody OrderRequest orderRequest){
+    public ResponseEntity<String> createOrder(@RequestBody OrderRequest orderRequest){
         try {
             OrderDto orderDto = orderMapper.toOrderDto(iOrderService.createOrder(orderRequest.getCustomerEmail(), orderRequest.getProductId()));
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(orderDto);
+                    .body("An order has been created for the customer. Please wait for the fulfillment checks to complete and check back later");
         } catch (Exception e) {
             return ResponseEntity
                     .badRequest()
