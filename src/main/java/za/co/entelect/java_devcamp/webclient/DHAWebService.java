@@ -96,7 +96,6 @@ public class DHAWebService {
                     )
                     .bodyToMono(LivingStatus.class)
                     .onErrorResume(WebClientResponseException.class, ex -> {
-
                         if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
                             return Mono.empty();
                         }

@@ -13,6 +13,9 @@ public class NotificationContent {
     public static final String Order_completed_success =
             "Your order has been completed successfully. Thank you for choosing our service.";
 
+    public static final String Order_completed_failure =
+            "Your order has been completed successfully. Unfortunately your order was not successful. The following has been provided as a reason {}. Thank you for choosing our service.";
+
     public static final String Fulfillment_checks_start =
             "Your order is currently undergoing fulfillment checks. We’ll notify you once this process is complete.";
 

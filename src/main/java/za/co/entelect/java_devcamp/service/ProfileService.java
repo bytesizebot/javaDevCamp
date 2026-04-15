@@ -65,4 +65,10 @@ public class ProfileService implements IProfileService {
         return profileRepository.findByEmailAddress(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Profile not found with username: " + username));
     }
+
+    @Override
+    public Profile getProfileByIdNumber(String idNumber) {
+        return profileRepository.findByIdNumber(idNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found with ID Number: " + idNumber));
+    }
 }

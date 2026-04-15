@@ -16,6 +16,7 @@ import za.co.entelect.java_devcamp.entity.Status;
 import za.co.entelect.java_devcamp.exception.ResourceNotFoundException;
 import za.co.entelect.java_devcamp.mapper.OrderMapper;
 import za.co.entelect.java_devcamp.rabbitmq.MessageProducer;
+import za.co.entelect.java_devcamp.rabbitmq.OrderProducer;
 import za.co.entelect.java_devcamp.repository.OrderRepository;
 import za.co.entelect.java_devcamp.service.OrderService;
 import za.co.entelect.java_devcamp.serviceinterface.*;
@@ -50,11 +51,13 @@ class OrderServiceTest {
     @Mock
     private IEligibilityService iEligibilityService;
     @Mock
-    private IFulfilmentService iFulfilmentService;
-    @Mock
     private IDocumentService iDocumentService;
     @Mock
     private INotificationService iNotificationService;
+    @Mock
+    private IProfileService iProfileService;
+    @Mock
+    private OrderProducer orderProducer;
     private Order mockOrderEntity;
     private OrderDto mockOrderDto;
     private OrderItem mockOrderItemsEntity;
@@ -64,7 +67,7 @@ class OrderServiceTest {
 
     @BeforeEach
     public void setup() {
-        orderService = new OrderService(orderRepository, iProductService, iEligibilityService, orderMapper, messageProducer, cisWebService, iFulfilmentService, iDocumentService, iNotificationService);
+        orderService = new OrderService(orderRepository, iProductService, iEligibilityService, orderMapper, messageProducer, cisWebService,  iDocumentService, iNotificationService, iProfileService, orderProducer);
         mockProductEntity = Product.builder()
                 .productId(1L)
                 .Name("Product")

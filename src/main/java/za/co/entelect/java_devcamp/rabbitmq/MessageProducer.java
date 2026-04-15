@@ -15,15 +15,10 @@ public class MessageProducer {
 
     public void sendMessage(String message) {
         rabbitTemplate.convertAndSend(RabbitConfig.EXCHANGE_NAME, RabbitConfig.ROUTING_KEY, message);
-        try {
-            Thread.sleep(5000); // 5-second pause
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     public void sendTestMessage(String message) {
-        rabbitTemplate.convertAndSend(RabbitConfig.QUEUE_NAME, message);
+        rabbitTemplate.convertAndSend(RabbitConfig.PRODUCT_FULFILMENT, message);
         System.out.println("Sent test message directly to queue: " + message);
     }
 }

@@ -13,5 +13,6 @@ public interface IProfileService {
     List<ProfileDto> getAllProfiles();
 
     Profile getProfileByUserName(String username);
+    Profile getProfileByIdNumber(String username);
 
 }

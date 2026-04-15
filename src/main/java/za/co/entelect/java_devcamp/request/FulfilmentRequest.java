@@ -11,7 +11,7 @@ import java.io.Serializable;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class FulfillmentRequest implements Serializable {
+public class FulfilmentRequest implements Serializable {
     private Long customerId;
     private String customerIdNumber;
     private String fulfillmentType;

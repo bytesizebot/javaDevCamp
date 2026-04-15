@@ -2,9 +2,12 @@ package za.co.entelect.java_devcamp.soap;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.ws.client.core.support.WebServiceGatewaySupport;
-import org.springframework.ws.soap.client.core.SoapActionCallback;
 import za.co.entelect.java_devcamp.fraudcheck.FraudCheckRequest;
 import za.co.entelect.java_devcamp.fraudcheck.FraudCheckResponse;
 
@@ -21,6 +24,7 @@ public class FraudClient extends WebServiceGatewaySupport {
 
     private Random random = new Random();
 
+    @Retryable(retryFor = {ResourceAccessException.class, HttpServerErrorException.class}, maxAttempts = 3, backoff = @Backoff(delay = 500))
     public FraudCheckResponse getFraudCheck(Integer customerId, String IdNumber){
         FraudCheckRequest request = new FraudCheckRequest();
         request.setCustomerId(customerId);
