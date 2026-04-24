@@ -45,10 +45,6 @@ public class ProductController {
     @SecurityRequirement(name = "bearerAuth")
     public EligibilityResponse checkProductEligibility(@RequestParam String email, @RequestParam Long productId) {
 
-        boolean isEligible = iProductService.isEligibleForProduct(email, productId);
-
-        return isEligible
-                ? new EligibilityResponse(true, "User is eligible to take up this product")
-                : new EligibilityResponse(false, "User is not eligible to take up this product");
+        return iProductService.isEligibleForProduct(email, productId);
     }
 }

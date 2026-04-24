@@ -20,11 +20,10 @@ import java.util.List;
 public class OrderController {
     
     private final IOrderService iOrderService;
-    private final OrderMapper orderMapper;
 
-    public OrderController(IOrderService iOrderService, OrderMapper orderMapper) {
+
+    public OrderController(IOrderService iOrderService) {
         this.iOrderService = iOrderService;
-        this.orderMapper = orderMapper;
     }
 
     @Operation(summary="Get All Orders")
@@ -45,7 +44,7 @@ public class OrderController {
     @Operation(summary = "create a product order")
     public ResponseEntity<String> createOrder(@RequestBody OrderRequest orderRequest){
         try {
-            OrderDto orderDto = orderMapper.toOrderDto(iOrderService.createOrder(orderRequest.getCustomerEmail(), orderRequest.getProductId()));
+            iOrderService.createOrder(orderRequest.getCustomerEmail(), orderRequest.getProductId());
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body("An order has been created for the customer. Please wait for the fulfillment checks to complete and check back later");
         } catch (Exception e) {

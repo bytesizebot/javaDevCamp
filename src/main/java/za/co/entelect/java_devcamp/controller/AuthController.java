@@ -17,7 +17,7 @@ import za.co.entelect.java_devcamp.response.LogInResponse;
 import za.co.entelect.java_devcamp.serviceinterface.IUserService;
 
 @RestController
-@RequestMapping("auth")
+@RequestMapping("/auth")
 @SecurityRequirements()
 @Tag(name = "Authentication", description = "Authentication API")
 public class AuthController {

@@ -8,7 +8,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class EligibilityResponse {
-    private boolean success;
     private String message;
-
+    private String failureReason;
 }

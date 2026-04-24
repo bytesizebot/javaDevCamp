@@ -12,7 +12,7 @@ public interface IOrderService {
 
     OrderDto getOrderById(Long id);
 
-    Order createOrder(String customerEmail, Long productId );
+    void createOrder(String customerEmail, Long productId );
 
     Order updateOrderStatus(Long orderId, Status newStatus);
 

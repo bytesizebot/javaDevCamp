@@ -13,6 +13,7 @@ import za.co.entelect.java_devcamp.repository.EligibilityRepository;
 import za.co.entelect.java_devcamp.repository.ProductRepository;
 import za.co.entelect.java_devcamp.repository.QualifyingAccountsRepository;
 import za.co.entelect.java_devcamp.repository.QualifyingCustomerTypesRepository;
+import za.co.entelect.java_devcamp.response.EligibilityResponse;
 import za.co.entelect.java_devcamp.serviceinterface.IProductService;
 import za.co.entelect.java_devcamp.webclient.CISWebService;
 import za.co.entelect.java_devcamp.webclientdto.AccountTypeDto;
@@ -48,11 +49,16 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public boolean isEligibleForProduct(String customerEmail, Long productId) {
+    public EligibilityResponse isEligibleForProduct(String customerEmail, Long productId) {
         CustomerDto customer = cisWebService.getCustomerByEmail(customerEmail);
-
+        String failreason = "";
         if (eligibilityRepository.existsByCustomerIdAndProductId(customer.getId(), productId)) {
-            return eligibilityRepository.findByCustomerIdAndProductId(customer.getId(), productId).getResult();
+            boolean existing = eligibilityRepository.findByCustomerIdAndProductId(customer.getId(), productId).getResult();
+
+            return existing
+                    ? new EligibilityResponse("User is eligible to take up this product", "")
+                    : new EligibilityResponse("User is not eligible to take up this product", "user account type or customer type criteria was not met.");
+
         }
         //To do: check token n user at the same time
 
@@ -77,14 +83,25 @@ public class ProductService implements IProductService {
             if (qualifyingAccounts != null && qualifyingAccounts.getAccountId() != null &&
                     qualifyingAccounts.getAccountId().equals(accountId.longValue())) {
                 hasAQualifyingAccount = true;
+                failreason = "";
             }
         }
         QualifyingCustomerTypes qualifyingCustomerTypes = qualifyingCustomerTypesRepository.findByCustomerTypesIdAndProductProductId(customerTypeId, productId);
         boolean isEligible = ((qualifyingCustomerTypes != null) && (hasAQualifyingAccount));
 
+        if (qualifyingCustomerTypes == null) {
+            failreason += " Customer is not a qualifying customer type. ";
+        }
+
+        if (!hasAQualifyingAccount) {
+            failreason += "Customer does not have a qualifying account.";
+        }
+
         Eligibility eligible = new Eligibility(productId, customer.getId(), isEligible);
 
         eligibilityRepository.save(eligible);
-        return isEligible;
+        return isEligible
+                ? new EligibilityResponse("User is eligible to take up this product", failreason)
+                : new EligibilityResponse("User is not eligible to take up this product", failreason);
     }
 }

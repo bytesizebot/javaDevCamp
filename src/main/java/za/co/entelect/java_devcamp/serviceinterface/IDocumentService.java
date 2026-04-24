@@ -6,5 +6,5 @@ import za.co.entelect.java_devcamp.webclientdto.CustomerDto;
 import java.util.List;
 
 public interface IDocumentService {
-    void generateCustomerContract(List<ProductDto> orderItemDtoList, CustomerDto customerDto);
+    String generateCustomerContract(List<ProductDto> orderItemDtoList, String customerEmail);
 }
